@@ -11,7 +11,7 @@ function App() {
     <AppProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          {/* <Stack.Screen name="IntroScreen" component={IntroScreen} /> */}
+          <Stack.Screen name="IntroScreen" component={IntroScreen} />
           <Stack.Screen name="TabNavigation" component={TabNavigation} />
         </Stack.Navigator>
       </NavigationContainer>
