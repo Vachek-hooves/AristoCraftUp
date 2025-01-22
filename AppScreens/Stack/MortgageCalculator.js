@@ -11,8 +11,8 @@ import {
 import {Dropdown} from 'react-native-element-dropdown';
 
 const MortgageCalculator = ({navigation}) => {
-  const [activeTab, setActiveTab] = useState('BY PROPERTY VALUE');
   const [formData, setFormData] = useState({
+    calculationType: 'BY PROPERTY VALUE',
     propertyValue: '',
     initialPayment: '',
     loanTerm: '',
@@ -125,18 +125,18 @@ const MortgageCalculator = ({navigation}) => {
         style={styles.calculatorIcon}
       />
 
-      {/* Tab Selector */}
+      {/* Updated Tab Selector */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[
             styles.tab,
-            activeTab === 'BY PROPERTY VALUE' && styles.activeTab,
+            formData.calculationType === 'BY PROPERTY VALUE' && styles.activeTab,
           ]}
-          onPress={() => setActiveTab('BY PROPERTY VALUE')}>
+          onPress={() => setFormData({...formData, calculationType: 'BY PROPERTY VALUE'})}>
           <Text
             style={[
               styles.tabText,
-              activeTab === 'BY PROPERTY VALUE' && styles.activeTabText,
+              formData.calculationType === 'BY PROPERTY VALUE' && styles.activeTabText,
             ]}>
             BY PROPERTY VALUE
           </Text>
@@ -144,13 +144,13 @@ const MortgageCalculator = ({navigation}) => {
         <TouchableOpacity
           style={[
             styles.tab,
-            activeTab === 'BY LOAN AMOUNT' && styles.activeTab,
+            formData.calculationType === 'BY LOAN AMOUNT' && styles.activeTab,
           ]}
-          onPress={() => setActiveTab('BY LOAN AMOUNT')}>
+          onPress={() => setFormData({...formData, calculationType: 'BY LOAN AMOUNT'})}>
           <Text
             style={[
               styles.tabText,
-              activeTab === 'BY LOAN AMOUNT' && styles.activeTabText,
+              formData.calculationType === 'BY LOAN AMOUNT' && styles.activeTabText,
             ]}>
             BY LOAN AMOUNT
           </Text>
@@ -161,7 +161,7 @@ const MortgageCalculator = ({navigation}) => {
       <View style={styles.formContainer}>
         <TextInput
           style={[styles.input, errors.propertyValue && styles.inputError]}
-          placeholder="Property Value"
+          placeholder={formData.calculationType === 'BY PROPERTY VALUE' ? "Property Value" : "Loan Amount"}
           placeholderTextColor="#6B7280"
           keyboardType="numeric"
           value={formData.propertyValue}
