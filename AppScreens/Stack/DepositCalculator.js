@@ -54,32 +54,32 @@ const DepositCalculator = () => {
     {label: 'Once a year', value: 'Once a year'},
   ];
 
-  const handleDropdownPress = dropdownName => {
-    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
-  };
+  // const handleDropdownPress = dropdownName => {
+  //   setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  // };
 
-  const handleOptionSelect = (option, setter) => {
-    setter(option);
-    setActiveDropdown(null);
-  };
+  // const handleOptionSelect = (option, setter) => {
+  //   setter(option);
+  //   setActiveDropdown(null);
+  // };
 
-  const renderDropdown = (options, currentValue, setter, index) => {
-    return (
-      <View style={[styles.dropdownMenu, {zIndex: 1000 - index}]}>
-        {options.map((option, idx) => (
-          <TouchableOpacity
-            key={idx}
-            style={styles.dropdownItem}
-            onPress={() => handleOptionSelect(option, setter)}>
-            <Text style={styles.dropdownText}>{option}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
-  };
+  // const renderDropdown = (options, currentValue, setter, index) => {
+  //   return (
+  //     <View style={[styles.dropdownMenu, {zIndex: 1000 - index}]}>
+  //       {options.map((option, idx) => (
+  //         <TouchableOpacity
+  //           key={idx}
+  //           style={styles.dropdownItem}
+  //           onPress={() => handleOptionSelect(option, setter)}>
+  //           <Text style={styles.dropdownText}>{option}</Text>
+  //         </TouchableOpacity>
+  //       ))}
+  //     </View>
+  //   );
+  // };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Deposit Calculator</Text>
 
       <Image
@@ -130,6 +130,16 @@ const DepositCalculator = () => {
             activeColor="#000824"
             backgroundColor={'#001250' + 90}
           />
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Date</Text>
+          <TouchableOpacity style={styles.dateButton}>
+            <Image 
+              source={require('../../assets/images/vector/calendar.png')}
+              style={styles.calendarIcon}
+            />
+            <Text style={styles.dateButtonText}>Select date</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={[styles.inputGroup, {zIndex: 7}]}>
@@ -284,7 +294,7 @@ export default DepositCalculator;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    backgroundColor: '#001250',
   },
   title: {
     fontSize: 24,
@@ -313,14 +323,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   input: {
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     padding: 16,
     color: 'white',
     fontSize: 16,
   },
   selectButton: {
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -336,7 +346,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   dateButton: {
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -359,7 +369,7 @@ const styles = StyleSheet.create({
   percentInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     paddingHorizontal: 12,
     minWidth: 70,
@@ -404,7 +414,7 @@ const styles = StyleSheet.create({
     top: '100%',
     left: 0,
     right: 0,
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     marginTop: 4,
     padding: 8,
@@ -425,7 +435,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   dropdown: {
-    backgroundColor: '#001250',
+    backgroundColor: '#000D39',
     borderRadius: 12,
     padding: 16,
     height: 56,
