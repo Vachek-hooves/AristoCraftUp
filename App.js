@@ -4,6 +4,8 @@ import {IntroScreen} from './AppScreens/Stack';
 import {NavigationContainer} from '@react-navigation/native';
 import TabNavigation from './AppScreens/TabNavigation';
 import CalculatorDetails from './AppScreens/Stack/CalculatorDetails';
+import MortgageCalculator from './AppScreens/Stack/MortgageCalculator';
+import DepositCalculator from './AppScreens/Stack/DepositCalculator';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +24,14 @@ function App() {
           <Stack.Screen
             name="CalculatorDetails"
             component={CalculatorDetails}
+          />
+          <Stack.Screen
+            name="MortgageCalculator"
+            component={MortgageCalculator}
+          />
+          <Stack.Screen
+            name="DepositCalculator"
+            component={DepositCalculator}
           />
         </Stack.Navigator>
       </NavigationContainer>

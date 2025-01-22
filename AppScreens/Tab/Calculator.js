@@ -15,13 +15,13 @@ const Calculator = ({navigation}) => {
 
         <TouchableOpacity
           style={styles.depositButton}
-          onPress={() => navigation.navigate('CalculatorDetails')}>
+          onPress={() => navigation.navigate('DepositCalculator')}>
           <Text style={styles.depositText}>Deposit Calculator</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.mortgageButton}
-          onPress={() => navigation.navigate('CalculatorDetails')}>
+          onPress={() => navigation.navigate('MortgageCalculator')}>
           <Text style={styles.mortgageText}>Mortgage Calculator</Text>
         </TouchableOpacity>
       </View>
