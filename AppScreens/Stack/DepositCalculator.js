@@ -347,8 +347,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   calculatorIcon: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     alignSelf: 'center',
     marginBottom: 20,
   },
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 8,
-    tintColor: '#6B7280',
+    tintColor: '#FFF',
   },
   dateButtonText: {
     color: '#6B7280',
