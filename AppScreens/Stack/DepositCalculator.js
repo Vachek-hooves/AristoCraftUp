@@ -33,14 +33,18 @@ const DepositCalculator = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
-  const onDateChange = (date) => {
-    setSelectedDate(date);
-    setIsCalendarVisible(false);
+  const formatDate = date => {
+    if (!date) return 'Select date';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
-  const formatDate = (date) => {
-    if (!date) return 'Select date';
-    return date.format('DD/MM/YYYY');
+  const handleDateChange = date => {
+    console.log('Selected date:', date);
+    setSelectedDate(date);
+    setIsCalendarVisible(false);
   };
 
   return (
@@ -96,20 +100,24 @@ const DepositCalculator = () => {
             backgroundColor={'#001250' + 90}
           />
         </View>
-        <View style={[styles.inputGroup, {zIndex: 7}]}>
+        <View style={[styles.inputGroup, {zIndex: 7}, ,]}>
           <Text style={styles.label}>Date</Text>
-          <TouchableOpacity 
-            style={styles.dateButton}
+          <TouchableOpacity
+            style={[
+              styles.dateButton,
+              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
+            ]}
             onPress={() => setIsCalendarVisible(true)}
-          >
-            <Image 
+            activeOpacity={0.7}>
+            <Image
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text style={[
-              styles.dateButtonText, 
-              selectedDate && styles.dateSelectedText
-            ]}>
+            <Text
+              style={[
+                styles.dateButtonText,
+                selectedDate && styles.dateSelectedText,
+              ]}>
               {formatDate(selectedDate)}
             </Text>
           </TouchableOpacity>
@@ -264,32 +272,37 @@ const DepositCalculator = () => {
         transparent={true}
         animationType="fade"
         onRequestClose={() => setIsCalendarVisible(false)}
-        statusBarTranslucent
-      >
+        statusBarTranslucent>
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.modalBackground}
             activeOpacity={1}
-            onPress={() => setIsCalendarVisible(false)}
-          >
+            onPress={() => setIsCalendarVisible(false)}>
             <View style={styles.calendarContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 activeOpacity={1}
-                onPress={(e) => e.stopPropagation()}
-              >
+                onPress={e => e.stopPropagation()}>
                 <CalendarPicker
-                  onDateChange={onDateChange}
+                  onDateChange={handleDateChange}
                   selectedDayColor="#0066FF"
                   selectedDayTextColor="#FFFFFF"
-                  textStyle={{ color: '#FFFFFF' }}
+                  textStyle={{color: '#FFFFFF'}}
                   todayBackgroundColor="transparent"
-                  todayTextStyle={{ color: '#FFFFFF' }}
-                  monthTitleStyle={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}
-                  yearTitleStyle={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}
-                  dayLabelsWrapper={{ 
-                    borderTopWidth: 0, 
+                  todayTextStyle={{color: '#FFFFFF'}}
+                  monthTitleStyle={{
+                    color: '#FFFFFF',
+                    fontSize: 16,
+                    fontWeight: '600',
+                  }}
+                  yearTitleStyle={{
+                    color: '#FFFFFF',
+                    fontSize: 16,
+                    fontWeight: '600',
+                  }}
+                  dayLabelsWrapper={{
+                    borderTopWidth: 0,
                     borderBottomWidth: 0,
-                    backgroundColor: '#001250' 
+                    backgroundColor: '#001250',
                   }}
                   previousComponent={
                     <Text style={styles.navigationArrow}>{'<'}</Text>
@@ -299,12 +312,12 @@ const DepositCalculator = () => {
                   }
                   weekdays={['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']}
                   weekdaysStyle={styles.weekdayLabel}
-                  dayLabelsWrapper={styles.dayLabelsWrapper}
+                //   dayLabelsWrapper={styles.dayLabelsWrapper}
                   customDatesStyles={[
                     {
                       date: selectedDate,
-                      style: { backgroundColor: '#0066FF' },
-                      textStyle: { color: '#FFFFFF' },
+                      style: {backgroundColor: '#0066FF'},
+                      textStyle: {color: '#FFFFFF'},
                     },
                   ]}
                 />
@@ -383,14 +396,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   calendarIcon: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
     marginRight: 8,
     tintColor: '#6B7280',
   },
   dateButtonText: {
     color: '#6B7280',
-    fontSize: 14,
+    fontSize: 16,
   },
   dateSelectedText: {
     color: 'white',
