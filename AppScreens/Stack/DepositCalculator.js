@@ -22,6 +22,7 @@ const DepositCalculator = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('500');
   const [nonReducibleBalance, setNonReducibleBalance] = useState('60');
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [interestPercent, setInterestPercent] = useState('');
 
   const termOptions = ['Months', 'Days', 'Years'];
   const interestRateOptions = [
@@ -126,13 +127,26 @@ const DepositCalculator = () => {
         <View style={[styles.inputGroup, {zIndex: 6}]}>
           <Text style={styles.label}>Interest rate</Text>
           <View style={styles.rateContainer}>
-            <CustomDropdown
-              options={interestRateOptions}
-              value={interestRate}
-              onSelect={setInterestRate}
-              zIndex={6}
-            />
-            <Text style={styles.percentSign}>%</Text>
+            <View style={{ flex: 1 }}>
+              <CustomDropdown 
+                options={interestRateOptions}
+                value={interestRate}
+                onSelect={setInterestRate}
+                zIndex={6}
+              />
+            </View>
+            <View style={styles.percentInputContainer}>
+              <TextInput
+                style={styles.percentInput}
+                value={interestPercent}
+                onChangeText={setInterestPercent}
+                keyboardType="numeric"
+                placeholder="0"
+                placeholderTextColor="#6B7280"
+                maxLength={3}
+              />
+              <Text style={styles.percentSign}>%</Text>
+            </View>
           </View>
         </View>
         
@@ -311,6 +325,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  percentInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#001250',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    minWidth: 70,
+  },
+  percentInput: {
+    color: 'white',
+    fontSize: 16,
+    padding: 16,
+    minWidth: 40,
   },
   percentSign: {
     color: 'white',
