@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import React, {useState} from 'react';
-import CustomDropdown from '../../components/Custom/CustomDropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 
 const DepositCalculator = () => {
   const [depositAmount, setDepositAmount] = useState('5000');
@@ -24,27 +24,34 @@ const DepositCalculator = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [interestPercent, setInterestPercent] = useState('');
 
-  const termOptions = ['Months', 'Days', 'Years'];
+  const termOptions = [
+    {label: 'Months', value: 'Months'},
+    {label: 'Days', value: 'Days'},
+    {label: 'Years', value: 'Years'},
+  ];
+
   const interestRateOptions = [
-    'Fixed',
-    'Depends on the amount',
-    'Depends on the time limit',
+    {label: 'Fixed', value: 'Fixed'},
+    {label: 'Depends on the amount', value: 'Depends on the amount'},
+    {label: 'Depends on the time limit', value: 'Depends on the time limit'},
   ];
+
   const payoutFrequencyOptions = [
-    'Every week',
-    'At the end of the term',
-    'Every day',
-    'Once a month',
-    'Once a quarter',
-    'Every six months',
-    'Once a year',
+    {label: 'Every week', value: 'Every week'},
+    {label: 'At the end of the term', value: 'At the end of the term'},
+    {label: 'Every day', value: 'Every day'},
+    {label: 'Once a month', value: 'Once a month'},
+    {label: 'Once a quarter', value: 'Once a quarter'},
+    {label: 'Every six months', value: 'Every six months'},
+    {label: 'Once a year', value: 'Once a year'},
   ];
+
   const withdrawalOptions = [
-    'One-time',
-    'Once a month',
-    'Once every 2 months',
-    'Once a quarter',
-    'Once a year',
+    {label: 'One-time', value: 'One-time'},
+    {label: 'Once a month', value: 'Once a month'},
+    {label: 'Once every 2 months', value: 'Once every 2 months'},
+    {label: 'Once a quarter', value: 'Once a quarter'},
+    {label: 'Once a year', value: 'Once a year'},
   ];
 
   const handleDropdownPress = dropdownName => {
@@ -81,7 +88,7 @@ const DepositCalculator = () => {
       />
 
       <View style={styles.formContainer}>
-        <View style={[styles.inputGroup, {zIndex: 6}]}>
+        <View style={[styles.inputGroup, {zIndex: 10}]}>
           <Text style={styles.label}>Deposit amount</Text>
           <TextInput
             style={styles.input}
@@ -93,7 +100,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
+        <View style={[styles.inputGroup, {zIndex: 9}]}>
           <Text style={styles.label}>Term value</Text>
           <TextInput
             style={styles.input}
@@ -105,83 +112,109 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <CustomDropdown
-          label="Term of placement"
-          options={termOptions}
-          value={termPlacement}
-          onSelect={setTermPlacement}
-          zIndex={8}
-        />
-
-        <View style={[styles.inputGroup, {zIndex: 3}]}>
-          <Text style={styles.label}>Date</Text>
-          <TouchableOpacity style={styles.dateButton}>
-            <Image
-              source={require('../../assets/images/vector/calendar.png')}
-              style={styles.calendarIcon}
-            />
-            <Text style={styles.dateButtonText}>Select date</Text>
-          </TouchableOpacity>
+        <View style={[styles.inputGroup, {zIndex: 8}]}>
+          <Text style={styles.label}>Term of placement</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.dropdownPlaceholder}
+            selectedTextStyle={styles.dropdownSelectedText}
+            data={termOptions}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={termPlacement}
+            onChange={item => setTermPlacement(item.value)}
+            containerStyle={styles.dropdownContainer}
+            itemContainerStyle={styles.dropdownItemContainer}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor="#000824"
+            backgroundColor={'#001250' + 90}
+          />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 6}]}>
+        <View style={[styles.inputGroup, {zIndex: 7}]}>
           <Text style={styles.label}>Interest rate</Text>
           <View style={styles.rateContainer}>
-            <View style={{ flex: 1 }}>
-              <CustomDropdown 
-                options={interestRateOptions}
+            <View style={{flex: 1}}>
+              <Dropdown
+                style={styles.dropdown}
+                placeholderStyle={styles.dropdownPlaceholder}
+                selectedTextStyle={styles.dropdownSelectedText}
+                data={interestRateOptions}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
                 value={interestRate}
-                onSelect={setInterestRate}
-                zIndex={6}
+                onChange={item => setInterestRate(item.value)}
+                containerStyle={styles.dropdownContainer}
+                itemContainerStyle={styles.dropdownItemContainer}
+                itemTextStyle={styles.dropdownItemText}
+                activeColor="#000824"
+                backgroundColor={'#001250' + 90}
               />
             </View>
             <View style={styles.percentInputContainer}>
               <TextInput
-                style={styles.input}
+                style={styles.percentInput}
                 value={interestPercent}
                 onChangeText={setInterestPercent}
                 keyboardType="numeric"
                 placeholder="0"
                 placeholderTextColor="#6B7280"
-                maxLength={3}
               />
               <Text style={styles.percentSign}>%</Text>
             </View>
           </View>
         </View>
-        
-        <CustomDropdown
-          label="Interest payout frequency"
-          options={payoutFrequencyOptions}
-          value={payoutFrequency}
-          onSelect={setPayoutFrequency}
-          zIndex={4}
-        />
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
+        <View style={[styles.inputGroup, {zIndex: 6}]}>
           <View style={styles.checkboxRow}>
             <TouchableOpacity style={styles.checkbox} />
             <Text style={styles.label}>Interest capitalization</Text>
           </View>
         </View>
 
-        <CustomDropdown
-          label="Interest payout frequency"
-          options={payoutFrequencyOptions}
-          value={payoutFrequency}
-          onSelect={setPayoutFrequency}
-          zIndex={4}
-        />
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
+          <Text style={styles.label}>Interest payout frequency</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.dropdownPlaceholder}
+            selectedTextStyle={styles.dropdownSelectedText}
+            data={payoutFrequencyOptions}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={payoutFrequency}
+            onChange={item => setPayoutFrequency(item.value)}
+            containerStyle={styles.dropdownContainer}
+            itemContainerStyle={styles.dropdownItemContainer}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor="#000824"
+            backgroundColor={'#001250' + 90}
+          />
+        </View>
 
-        <CustomDropdown
-          label="Deposits"
-          options={withdrawalOptions}
-          value={deposits}
-          onSelect={setDeposits}
-          zIndex={3}
-        />
+        <View style={[styles.inputGroup, {zIndex: 4}]}>
+          <Text style={styles.label}>Deposits</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.dropdownPlaceholder}
+            selectedTextStyle={styles.dropdownSelectedText}
+            data={withdrawalOptions}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={deposits}
+            onChange={item => setDeposits(item.value)}
+            containerStyle={styles.dropdownContainer}
+            itemContainerStyle={styles.dropdownItemContainer}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor="#000824"
+            backgroundColor={'#001250' + 90}
+          />
+        </View>
 
-        <View style={[styles.inputGroup, {zIndex: 2}]}>
+        <View style={[styles.inputGroup, {zIndex: 3}]}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={styles.input}
@@ -193,13 +226,25 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <CustomDropdown
-          label="Partial withdrawals"
-          options={withdrawalOptions}
-          value={withdrawalType}
-          onSelect={setWithdrawalType}
-          zIndex={1}
-        />
+        <View style={[styles.inputGroup, {zIndex: 2}]}>
+          <Text style={styles.label}>Partial withdrawals</Text>
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.dropdownPlaceholder}
+            selectedTextStyle={styles.dropdownSelectedText}
+            data={withdrawalOptions}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={withdrawalType}
+            onChange={item => setWithdrawalType(item.value)}
+            containerStyle={styles.dropdownContainer}
+            itemContainerStyle={styles.dropdownItemContainer}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor="#000824"
+            backgroundColor={'#001250' + 90}
+          />
+        </View>
 
         <View style={[styles.inputGroup, {zIndex: 4}]}>
           <Text style={styles.label}>Amount</Text>
@@ -225,7 +270,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <TouchableOpacity style={styles.calculateButton}>
+        <TouchableOpacity style={[styles.calculateButton, {zIndex: 1}]}>
           <Text style={styles.calculateButtonText}>Calculate</Text>
         </TouchableOpacity>
       </View>
@@ -260,22 +305,6 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
     position: 'relative',
-    zIndex: 1,
-  },
-  'inputGroup:nth-child(1)': {
-    zIndex: 6,
-  },
-  'inputGroup:nth-child(2)': {
-    zIndex: 5,
-  },
-  'inputGroup:nth-child(3)': {
-    zIndex: 4,
-  },
-  'inputGroup:nth-child(4)': {
-    zIndex: 3,
-  },
-  'inputGroup:nth-child(5)': {
-    zIndex: 2,
   },
   label: {
     color: '#6B7280',
@@ -391,6 +420,40 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   dropdownText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  dropdown: {
+    backgroundColor: '#001250',
+    borderRadius: 12,
+    padding: 16,
+    height: 56,
+  },
+  dropdownContainer: {
+    backgroundColor: '#001250',
+    borderRadius: 12,
+    marginTop: 4,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  dropdownItemContainer: {
+    padding: 8,
+  },
+  dropdownItemText: {
+    color: '#FFF',
+    fontSize: 14,
+  },
+  dropdownPlaceholder: {
+    // color: '#6B7280',
+    fontSize: 17,
+  },
+  dropdownSelectedText: {
     color: 'white',
     fontSize: 16,
   },

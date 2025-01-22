@@ -4,7 +4,7 @@ const IntroScreen = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
       navigation.navigate('TabNavigation');
-    }, 3000);
+    }, 500);
   }, []);
   return (
     <ImageBackground
