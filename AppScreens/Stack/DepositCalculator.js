@@ -274,6 +274,7 @@ const DepositCalculator = () => {
           <Text style={styles.calculateButtonText}>Calculate</Text>
         </TouchableOpacity>
       </View>
+      <View style={{height: 100}} />
     </ScrollView>
   );
 };
@@ -443,11 +444,12 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   dropdownItemContainer: {
-    padding: 8,
+    padding: 4,
+    borderRadius: 22,
   },
   dropdownItemText: {
     color: '#FFF',
-    fontSize: 14,
+    fontSize: 18,
   },
   dropdownPlaceholder: {
     // color: '#6B7280',
