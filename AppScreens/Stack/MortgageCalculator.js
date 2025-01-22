@@ -94,20 +94,14 @@ const MortgageCalculator = () => {
             maxHeight={200}
             labelField="label"
             valueField="value"
-            // placeholder="Select Loan Term"
+            value={loanTerm}
+            onChange={item => setLoanTerm(item.value)}
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
             activeColor="#000824"
             backgroundColor={'#001250' + 90}
-            value={loanTerm}
-            onChange={setLoanTerm}
-         
           />
-          {/* <Pressable style={styles.termSelector}>
-            <Text style={styles.termText}>{loanTerm}</Text>
-            <Text style={styles.termArrow}>›</Text>
-          </Pressable> */}
         </View>
 
         <TextInput
@@ -209,29 +203,48 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
+    zIndex: 1000,
   },
   termInput: {
     flex: 1,
     marginBottom: 0,
     marginRight: 8,
+    backgroundColor: '#000D39',
   },
-  termSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#2F3B52',
-    borderRadius: 8,
-    padding: 12,
-    width: 100,
+  dropdown: {
+    backgroundColor: '#000D39',
+    borderRadius: 12,
+    padding: 16,
+    width: 120,
+    height: 56,
   },
-  termText: {
-    color: '#FFFFFF',
-    flex: 1,
+  dropdownContainer: {
+    backgroundColor: '#001250',
+    borderRadius: 12,
+    marginTop: 4,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  termArrow: {
-    color: '#FFFFFF',
+  dropdownItemContainer: {
+    padding: 4,
+    borderRadius: 22,
+  },
+  dropdownItemText: {
+    color: '#FFF',
     fontSize: 18,
+  },
+  dropdownPlaceholder: {
+    fontSize: 17,
+  },
+  dropdownSelectedText: {
+    color: 'white',
+    fontSize: 16,
   },
   label: {
     color: '#6B7280',
@@ -272,40 +285,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  dropdown: {
-    backgroundColor: '#000D39',
-    borderRadius: 12,
-    padding: 16,
-    height: 56,
-  },
-  dropdownContainer: {
-    backgroundColor: '#001250',
-    borderRadius: 12,
-    marginTop: 4,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  dropdownItemContainer: {
-    padding: 4,
-    borderRadius: 22,
-  },
-  dropdownItemText: {
-    color: '#FFF',
-    fontSize: 18,
-  },
-  dropdownPlaceholder: {
-    fontSize: 17,
-  },
-  dropdownSelectedText: {
-    color: 'white',
-    fontSize: 16,
   },
 });
 
