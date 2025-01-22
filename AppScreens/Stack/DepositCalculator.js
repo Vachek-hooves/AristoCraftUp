@@ -264,33 +264,54 @@ const DepositCalculator = () => {
         transparent={true}
         animationType="fade"
         onRequestClose={() => setIsCalendarVisible(false)}
+        statusBarTranslucent
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay}
-          onPress={() => setIsCalendarVisible(false)}
-          activeOpacity={1}
-        >
-          <View style={styles.calendarContainer}>
-            <CalendarPicker
-              onDateChange={onDateChange}
-              selectedDayColor="#001250"
-              selectedDayTextColor="#FFFFFF"
-              textStyle={{ color: '#000000' }}
-              todayBackgroundColor="transparent"
-              todayTextStyle={{ color: '#0066FF' }}
-              monthTitleStyle={{ color: '#000000', fontSize: 16, fontWeight: '600' }}
-              yearTitleStyle={{ color: '#000000', fontSize: 16, fontWeight: '600' }}
-              dayLabelsWrapper={{ borderTopWidth: 0, borderBottomWidth: 0 }}
-              customDatesStyles={[
-                {
-                  date: selectedDate,
-                  style: { backgroundColor: '#001250' },
-                  textStyle: { color: '#FFFFFF' },
-                },
-              ]}
-            />
-          </View>
-        </TouchableOpacity>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            activeOpacity={1}
+            onPress={() => setIsCalendarVisible(false)}
+          >
+            <View style={styles.calendarContainer}>
+              <TouchableOpacity 
+                activeOpacity={1}
+                onPress={(e) => e.stopPropagation()}
+              >
+                <CalendarPicker
+                  onDateChange={onDateChange}
+                  selectedDayColor="#0066FF"
+                  selectedDayTextColor="#FFFFFF"
+                  textStyle={{ color: '#FFFFFF' }}
+                  todayBackgroundColor="transparent"
+                  todayTextStyle={{ color: '#FFFFFF' }}
+                  monthTitleStyle={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}
+                  yearTitleStyle={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}
+                  dayLabelsWrapper={{ 
+                    borderTopWidth: 0, 
+                    borderBottomWidth: 0,
+                    backgroundColor: '#001250' 
+                  }}
+                  previousComponent={
+                    <Text style={styles.navigationArrow}>{'<'}</Text>
+                  }
+                  nextComponent={
+                    <Text style={styles.navigationArrow}>{'>'}</Text>
+                  }
+                  weekdays={['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']}
+                  weekdaysStyle={styles.weekdayLabel}
+                  dayLabelsWrapper={styles.dayLabelsWrapper}
+                  customDatesStyles={[
+                    {
+                      date: selectedDate,
+                      style: { backgroundColor: '#0066FF' },
+                      textStyle: { color: '#FFFFFF' },
+                    },
+                  ]}
+                />
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </View>
       </Modal>
       <View style={{height: 100}} />
     </ScrollView>
@@ -377,15 +398,18 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalBackground: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   calendarContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#001250',
     borderRadius: 12,
     padding: 16,
-    width: '90%',
-    maxWidth: 340,
+    width: '100%',
+    // maxWidth: 340,
   },
   rateContainer: {
     flexDirection: 'row',
@@ -494,5 +518,20 @@ const styles = StyleSheet.create({
   dropdownSelectedText: {
     color: 'white',
     fontSize: 16,
+  },
+  navigationArrow: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    padding: 10,
+  },
+  weekdayLabel: {
+    color: '#6B7280',
+    fontSize: 12,
+    textTransform: 'uppercase',
+  },
+  dayLabelsWrapper: {
+    backgroundColor: '#001250',
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
   },
 });
