@@ -4,15 +4,16 @@ const calculateDeposit = (data) => {
     throw new Error('Missing required fields');
   }
 
-  // Extract required values
+  // Calculate base values
   const principal = parseFloat(data.depositAmount);
   const interestRate = parseFloat(data.interestPercent) / 100;
   const isCapitalization = data.isCapitalization;
-  
-  // Get dates
+  console.log(principal,interestRate,isCapitalization)
+  // Calculate dates and term
   const startDate = new Date(data.selectedDate);
   const endDate = calculateEndDate(startDate, data.termPlacement, data.termValue);
   const termInDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+  console.log(termInDays,endDate,startDate)
   
   // Initialize calculation variables
   let totalInterest = 0;
@@ -20,6 +21,7 @@ const calculateDeposit = (data) => {
   let totalDeposits = principal;
   let totalWithdrawals = 0;
 
+  // Calculate interest based on capitalization
   if (isCapitalization) {
     // Compound interest calculation
     switch (data.payoutFrequency) {
@@ -47,7 +49,7 @@ const calculateDeposit = (data) => {
     totalInterest = (principal * interestRate * termInDays) / 365;
     finalAmount = principal + totalInterest;
   }
-
+  console.log(totalInterest,finalAmount)
   // Handle additional deposits
   if (data.deposits !== 'One-time' && data.depositAmount2 && data.depositDate) {
     const additionalDeposit = parseFloat(data.depositAmount2);
@@ -87,8 +89,11 @@ const calculateDeposit = (data) => {
     }
   }
 
-  // Calculate tax (example: 15% of interest earned)
+  // Calculate tax (15% of interest earned)
   const tax = totalInterest * 0.15;
+
+  // Calculate capital gains percentage
+  const capitalGains = (totalInterest / principal) * 100;
 
   // Check non-reducible balance
   const nonReducibleBalance = parseFloat(data.nonReducibleBalance) || 0;
@@ -97,13 +102,12 @@ const calculateDeposit = (data) => {
   }
 
   return {
-    initialDeposit: principal,
-    totalDeposits,
-    totalWithdrawals,
-    totalInterest: Math.round(totalInterest * 100) / 100,
-    finalAmount: Math.round(finalAmount * 100) / 100,
-    effectiveRate: Math.round((totalInterest / principal * 100) * 100) / 100,
-    tax: Math.round(tax * 100) / 100,
+    accruedInterest: Math.round(totalInterest * 100) / 100,        // Accrued Interest
+    finalAmount: Math.round(finalAmount * 100) / 100,              // Deposit amount with interest
+    capitalGains: Math.round(capitalGains * 100) / 100,            // Capital Gains %
+    totalDeposits: Math.round(totalDeposits * 100) / 100,         // Total amount of all deposits
+    totalWithdrawals: Math.round(totalWithdrawals * 100) / 100,   // Total withdrawals
+    tax: Math.round(tax * 100) / 100,                             // Tax
     termInDays,
     startDate: startDate.toISOString(),
     endDate: endDate.toISOString()

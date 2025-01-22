@@ -2,45 +2,42 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { useAppContext } from '../../store/context';
 import PieChart from 'react-native-pie-chart';
+import { calculateDeposit } from '../../utils/DepCalc';
 
 const DepositSum = () => {
   const { calculatorData } = useAppContext();
-  const result = calculatorData.calculationResult || {};
   const widthAndHeight = 180;
 
-  // Calculate percentages for the pie chart
+  // Get calculation results
+  const result = calculatorData.calculationResult || {};
+  
+  // Calculate values for pie chart
   const initialDeposit = parseFloat(calculatorData.depositAmount) || 0;
   const additionalDeposit = parseFloat(calculatorData.depositAmount2) || 0;
-  const totalInterest = result.totalInterest || 0;
+  const totalInterest = result.accruedInterest || 0;
   const total = initialDeposit + additionalDeposit + totalInterest;
 
-  // Create series with proper format
-  const series = [
-    { 
-      value: Math.max(1, Math.round((initialDeposit / total) * 100)), 
-      color: '#FF4444',
-      label: { text: `${Math.round((initialDeposit / total) * 100)}%` }
-    },
-    { 
-      value: Math.max(1, Math.round((totalInterest / total) * 100)), 
-      color: '#4CAF50',
-      label: { text: `${Math.round((totalInterest / total) * 100)}%` }
-    },
-    { 
-      value: Math.max(1, Math.round((additionalDeposit / total) * 100)), 
-      color: '#2196F3',
-      label: { text: `${Math.round((additionalDeposit / total) * 100)}%` }
-    }
-  ].filter(item => !isNaN(item.value) && item.value > 0);
+  // Prepare pie chart data
+  let series = [100]; // Default value
+  let sliceColor = ['#FF4444']; // Default color
+  let percentages = [100, 0, 0];
 
-  // Default series if no data
-  if (series.length === 0 || total === 0) {
-    series = [{ value: 1, color: '#FF4444' }];
+  if (total > 0) {
+    percentages = [
+      Math.max(1, Math.round((initialDeposit / total) * 100)),
+      Math.max(1, Math.round((totalInterest / total) * 100)),
+      Math.max(1, Math.round((additionalDeposit / total) * 100))
+    ];
+    
+    // Only include non-zero values
+    series = percentages.filter(value => value > 0);
+    sliceColor = ['#FF4444', '#4CAF50', '#2196F3'].slice(0, series.length);
   }
 
   const formatCurrency = (value) => {
     return `${value?.toFixed(2) || '0.00'}$`;
   };
+  console.log(calculatorData.totalDeposits)
 
   return (
     <ScrollView style={styles.container}>
@@ -48,31 +45,33 @@ const DepositSum = () => {
       
       <View style={styles.card}>
         <View style={styles.chartContainer}>
-          {total > 0 && (
-            <PieChart
-              widthAndHeight={widthAndHeight}
-              series={series}
-              cover={0.8}
-              coverFill={'#001250'}
-            />
-          )}
+          <PieChart
+            widthAndHeight={widthAndHeight}
+            series={[
+              { value: series[0], color: sliceColor[0] },
+              ...(series.length > 1 ? [{ value: series[1], color: sliceColor[1] }] : []),
+              ...(series.length > 2 ? [{ value: series[2], color: sliceColor[2] }] : [])
+            ]}
+            coverRadius={0.8}
+            coverFill={'#001250'}
+          />
           <View style={styles.legend}>
             <View style={styles.legendItem}>
               <View style={[styles.legendColor, { backgroundColor: '#FF4444' }]} />
               <Text style={styles.legendText}>
-                Initial deposit ({series[0]?.value || 0}%)
+                Initial deposit ({percentages[0]}%)
               </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendColor, { backgroundColor: '#4CAF50' }]} />
               <Text style={styles.legendText}>
-                Interest income ({series[1]?.value || 0}%)
+                Interest income ({percentages[1]}%)
               </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendColor, { backgroundColor: '#2196F3' }]} />
               <Text style={styles.legendText}>
-                Top-ups ({series[2]?.value || 0}%)
+                Top-ups ({percentages[2]}%)
               </Text>
             </View>
           </View>
@@ -82,7 +81,7 @@ const DepositSum = () => {
       <View style={styles.resultsCard}>
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Accrued interest</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.totalInterest)}</Text>
+          <Text style={styles.resultValue}>{formatCurrency(result.accruedInterest)}</Text>
         </View>
 
         <View style={styles.resultRow}>
@@ -92,22 +91,22 @@ const DepositSum = () => {
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Capital gains</Text>
-          <Text style={styles.resultValue}>{result.effectiveRate}%</Text>
+          <Text style={styles.resultValue}>{result.capitalGains}%</Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Total amount of all deposits</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.initialDeposit)}</Text>
+          <Text style={styles.resultValue}>{formatCurrency(result.totalDeposits)}</Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Total withdrawals</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.totalWithdrawals || 0)}</Text>
+          <Text style={styles.resultValue}>{formatCurrency(result.totalWithdrawals)}</Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Tax</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.tax || 60)}</Text>
+          <Text style={styles.resultValue}>{formatCurrency(result.tax)}</Text>
         </View>
       </View>
     </ScrollView>

@@ -68,6 +68,53 @@ const DepositCalculator = ({navigation}) => {
     setIsCalendarVisible(false);
   };
 
+  const validateFields = () => {
+    const newErrors = {};
+
+    // Required fields validation
+    if (!calculatorData.depositAmount) {
+      newErrors.depositAmount = 'Initial deposit amount is required';
+    }
+    if (!calculatorData.termValue) {
+      newErrors.termValue = 'Term value is required';
+    }
+    if (!calculatorData.termPlacement) {
+      newErrors.termPlacement = 'Term placement is required';
+    }
+    if (!calculatorData.selectedDate) {
+      newErrors.selectedDate = 'Start date is required';
+    }
+    if (!calculatorData.interestPercent) {
+      newErrors.interestPercent = 'Interest rate is required';
+    }
+    if (!calculatorData.payoutFrequency) {
+      newErrors.payoutFrequency = 'Payout frequency is required';
+    }
+
+    // Additional deposits validation
+    if (calculatorData.deposits !== 'One-time') {
+      if (!calculatorData.depositAmount2) {
+        newErrors.depositAmount2 = 'Additional deposit amount is required';
+      }
+      if (!calculatorData.depositDate) {
+        newErrors.depositDate = 'Additional deposit date is required';
+      }
+    }
+
+    // Withdrawals validation
+    if (calculatorData.withdrawalType !== 'One-time') {
+      if (!calculatorData.withdrawalAmount) {
+        newErrors.withdrawalAmount = 'Withdrawal amount is required';
+      }
+      if (!calculatorData.withdrawalDate) {
+        newErrors.withdrawalDate = 'Withdrawal date is required';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCalculate = async () => {
     try {
       if (!validateFields()) {
@@ -76,7 +123,26 @@ const DepositCalculator = ({navigation}) => {
         return;
       }
 
-      const result = calculateDeposit(calculatorData);
+      // Prepare calculation data
+      const calculationData = {
+        depositAmount: calculatorData.depositAmount,
+        termValue: calculatorData.termValue,
+        termPlacement: calculatorData.termPlacement,
+        selectedDate: calculatorData.selectedDate,
+        interestRate: calculatorData.interestRate,
+        interestPercent: calculatorData.interestPercent,
+        isCapitalization: calculatorData.isCapitalization,
+        payoutFrequency: calculatorData.payoutFrequency,
+        deposits: calculatorData.deposits,
+        depositDate: calculatorData.depositDate,
+        depositAmount2: calculatorData.depositAmount2,
+        withdrawalType: calculatorData.withdrawalType,
+        withdrawalDate: calculatorData.withdrawalDate,
+        withdrawalAmount: calculatorData.withdrawalAmount,
+        nonReducibleBalance: calculatorData.nonReducibleBalance
+      };
+
+      const result = calculateDeposit(calculationData);
       console.log('Calculation result:', result);
 
       // Save results
@@ -85,19 +151,13 @@ const DepositCalculator = ({navigation}) => {
         calculationResult: result
       });
 
-      // Navigate to DepositSum
+      // Navigate to results
       navigation.navigate('DepositSum');
 
     } catch (error) {
       console.error('Calculation error:', error);
       Alert.alert('Error', error.message || 'Failed to calculate deposit');
     }
-  };
-
-  const validateFields = () => {
-    // Implement your validation logic here
-    // This is a placeholder and should be replaced with actual validation
-    return true;
   };
 
   const calculateDeposit = (data) => {
@@ -134,7 +194,7 @@ const DepositCalculator = ({navigation}) => {
           <TextInput
             style={styles.input}
             value={calculatorData.termValue}
-            onChangeText={value => updateCalculatorData({termsPlacement: value})}
+            onChangeText={value => updateCalculatorData({termValue: value})}
             keyboardType="numeric"
             placeholder="Term of placement"
             placeholderTextColor="#6B7280"
