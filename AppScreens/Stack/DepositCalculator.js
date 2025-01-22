@@ -9,6 +9,7 @@ import {
   ScrollView,
   Modal,
   Alert,
+  SafeAreaView
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -106,6 +107,7 @@ const DepositCalculator = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={styles.safeArea}>
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Deposit Calculator</Text>
 
@@ -123,6 +125,18 @@ const DepositCalculator = ({navigation}) => {
             onChangeText={value => updateCalculatorData({depositAmount: value})}
             keyboardType="numeric"
             placeholder="Deposit amount"
+            placeholderTextColor="#6B7280"
+          />
+        </View>
+
+        <View style={[styles.inputGroup, {zIndex: 10}]}>
+          {/* <Text style={styles.label}>Deposit amount</Text> */}
+          <TextInput
+            style={styles.input}
+            value={calculatorData.depositAmount}
+            onChangeText={value => updateCalculatorData({depositAmount: value})}
+            keyboardType="numeric"
+            placeholder="Term of placement"
             placeholderTextColor="#6B7280"
           />
         </View>
@@ -227,7 +241,7 @@ const DepositCalculator = ({navigation}) => {
         </View>
 
         <View style={[styles.inputGroup, {zIndex: 5}]}>
-          <Text style={styles.label}>Deposits</Text>
+          <Text style={styles.label}>Interest payout frequency</Text>
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -249,7 +263,7 @@ const DepositCalculator = ({navigation}) => {
         </View>
 
         <View style={[styles.inputGroup, {zIndex: 4}]}>
-          {/* <Text style={styles.label}>Deposits</Text> */}
+          <Text style={styles.label}>Deposits</Text>
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -270,7 +284,10 @@ const DepositCalculator = ({navigation}) => {
 
         <View style={[styles.inputGroup, {zIndex: 3}]}>
           <TouchableOpacity
-            style={styles.dateButton}
+            style={[
+              styles.dateButton,
+              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
+            ]}
             onPress={() => handleOpenCalendar('deposit')}
             activeOpacity={0.7}>
             <Image
@@ -352,7 +369,7 @@ const DepositCalculator = ({navigation}) => {
               updateCalculatorData({withdrawalAmount: value})
             }
             keyboardType="numeric"
-            placeholder="Enter amount"
+            placeholder="Amount"
             placeholderTextColor="#6B7280"
           />
         </View>
@@ -366,7 +383,7 @@ const DepositCalculator = ({navigation}) => {
               updateCalculatorData({nonReducibleBalance: value})
             }
             keyboardType="numeric"
-            placeholder="Enter amount"
+            placeholder="Amount"
             placeholderTextColor="#6B7280"
           />
         </View>
@@ -425,15 +442,21 @@ const DepositCalculator = ({navigation}) => {
       </Modal>
       <View style={{height: 100}} />
     </ScrollView>
+      </SafeAreaView>
   );
 };
 
 export default DepositCalculator;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#001250',
+  },
   container: {
     flex: 1,
     backgroundColor: '#001250',
+  //  paddingTop:50
   },
   title: {
     fontSize: 24,
@@ -459,7 +482,7 @@ const styles = StyleSheet.create({
   label: {
     color: '#6B7280',
     marginBottom: 8,
-    fontSize: 14,
+    fontSize: 16,
   },
   input: {
     backgroundColor: '#000D39',
