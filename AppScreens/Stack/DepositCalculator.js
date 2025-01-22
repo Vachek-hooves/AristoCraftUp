@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   Modal,
+  Alert,
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -19,22 +20,23 @@ import {
   withdrawalOptions,
 } from '../../data/DropDown';
 
-const DepositCalculator = () => {
+const DepositCalculator = ({navigation}) => {
   const {calculatorData, updateCalculatorData} = useAppContext();
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [activeCalendar, setActiveCalendar] = useState(null);
+  const [errors, setErrors] = useState({});
 
-  const handleOpenCalendar = (type) => {
+  const handleOpenCalendar = type => {
     setActiveCalendar(type);
     setIsCalendarVisible(true);
   };
 
   const formatDate = date => {
     if (!date) return 'Select date';
-    
+
     // Handle string date from AsyncStorage
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
+
     try {
       const day = dateObj.getDate().toString().padStart(2, '0');
       const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
@@ -46,11 +48,11 @@ const DepositCalculator = () => {
     }
   };
 
-  const handleDateChange = (date) => {
+  const handleDateChange = date => {
     if (!date) return;
-    
+
     const dateObj = new Date(date);
-    
+
     switch (activeCalendar) {
       case 'main':
         updateCalculatorData({selectedDate: dateObj.toISOString()});
@@ -67,36 +69,40 @@ const DepositCalculator = () => {
 
   const handleCalculate = async () => {
     try {
-      // Validate and prepare all data
-      const calculationData = {
-        depositAmount: calculatorData.depositAmount || '0',
-        termPlacement: calculatorData.termPlacement || 'Months',
-        selectedDate: calculatorData.selectedDate,
-        interestRate: calculatorData.interestRate || 'Fixed',
-        interestPercent: calculatorData.interestPercent || '0',
-        isCapitalization: calculatorData.isCapitalization || false,
-        payoutFrequency: calculatorData.payoutFrequency || 'Every week',
-        deposits: calculatorData.deposits || 'One-time',
-        depositDate: calculatorData.depositDate,
-        depositAmount2: calculatorData.depositAmount2 || '0',
-        withdrawalType: calculatorData.withdrawalType || 'One-time',
-        withdrawalDate: calculatorData.withdrawalDate,
-        withdrawalAmount: calculatorData.withdrawalAmount || '0',
-        nonReducibleBalance: calculatorData.nonReducibleBalance || '0'
-      };
+      if (!validateFields()) {
+        const firstError = Object.values(errors)[0];
+        Alert.alert('Validation Error', firstError);
+        return;
+      }
 
-      // Save all data
-      await updateCalculatorData(calculationData);
-      
-      console.log('Calculation data saved:', calculationData);
-      
-      // Here you can add navigation to results screen
-      // navigation.navigate('CalculationResults');
-      
+      const result = calculateDeposit(calculatorData);
+      console.log('Calculation result:', result);
+
+      // Save results
+      await updateCalculatorData({
+        ...calculatorData,
+        calculationResult: result
+      });
+
+      // Navigate to DepositSum
+      navigation.navigate('DepositSum');
+
     } catch (error) {
-      console.error('Error saving calculation data:', error);
-      // Handle error (you might want to show an alert to the user)
+      console.error('Calculation error:', error);
+      Alert.alert('Error', error.message || 'Failed to calculate deposit');
     }
+  };
+
+  const validateFields = () => {
+    // Implement your validation logic here
+    // This is a placeholder and should be replaced with actual validation
+    return true;
+  };
+
+  const calculateDeposit = (data) => {
+    // Implement your calculation logic here
+    // This is a placeholder and should be replaced with actual calculation
+    return 0;
   };
 
   return (
@@ -114,7 +120,7 @@ const DepositCalculator = () => {
           <TextInput
             style={styles.input}
             value={calculatorData.depositAmount}
-            onChangeText={(value) => updateCalculatorData({depositAmount: value})}
+            onChangeText={value => updateCalculatorData({depositAmount: value})}
             keyboardType="numeric"
             placeholder="Deposit amount"
             placeholderTextColor="#6B7280"
@@ -154,10 +160,11 @@ const DepositCalculator = () => {
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text style={[
-              styles.dateButtonText,
-              calculatorData.selectedDate && styles.dateSelectedText
-            ]}>
+            <Text
+              style={[
+                styles.dateButtonText,
+                calculatorData.selectedDate && styles.dateSelectedText,
+              ]}>
               {formatDate(calculatorData.selectedDate)}
             </Text>
           </TouchableOpacity>
@@ -175,7 +182,9 @@ const DepositCalculator = () => {
               labelField="label"
               valueField="value"
               value={calculatorData.interestRate}
-              onChange={item => updateCalculatorData({interestRate: item.value})}
+              onChange={item =>
+                updateCalculatorData({interestRate: item.value})
+              }
               containerStyle={styles.dropdownContainer}
               itemContainerStyle={styles.dropdownItemContainer}
               itemTextStyle={styles.dropdownItemText}
@@ -186,7 +195,9 @@ const DepositCalculator = () => {
               <TextInput
                 style={styles.percentInput}
                 value={calculatorData.interestPercent}
-                onChangeText={(value) => updateCalculatorData({interestPercent: value})}
+                onChangeText={value =>
+                  updateCalculatorData({interestPercent: value})
+                }
                 keyboardType="numeric"
                 placeholder="0"
                 placeholderTextColor="#6B7280"
@@ -200,8 +211,17 @@ const DepositCalculator = () => {
         <View style={[styles.inputGroup, {zIndex: 6}]}>
           <TouchableOpacity
             style={styles.checkboxRow}
-            onPress={() => updateCalculatorData({isCapitalization: !calculatorData.isCapitalization})}>
-            <View style={[styles.checkbox, calculatorData.isCapitalization && styles.checkboxChecked]} />
+            onPress={() =>
+              updateCalculatorData({
+                isCapitalization: !calculatorData.isCapitalization,
+              })
+            }>
+            <View
+              style={[
+                styles.checkbox,
+                calculatorData.isCapitalization && styles.checkboxChecked,
+              ]}
+            />
             <Text style={styles.label}>Interest capitalization</Text>
           </TouchableOpacity>
         </View>
@@ -217,7 +237,9 @@ const DepositCalculator = () => {
             labelField="label"
             valueField="value"
             value={calculatorData.payoutFrequency}
-            onChange={item => updateCalculatorData({payoutFrequency: item.value})}
+            onChange={item =>
+              updateCalculatorData({payoutFrequency: item.value})
+            }
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -255,10 +277,11 @@ const DepositCalculator = () => {
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text style={[
-              styles.dateButtonText,
-              calculatorData.depositDate && styles.dateSelectedText
-            ]}>
+            <Text
+              style={[
+                styles.dateButtonText,
+                calculatorData.depositDate && styles.dateSelectedText,
+              ]}>
               {formatDate(calculatorData.depositDate)}
             </Text>
           </TouchableOpacity>
@@ -268,7 +291,9 @@ const DepositCalculator = () => {
           <TextInput
             style={styles.input}
             value={calculatorData.depositAmount2}
-            onChangeText={(value) => updateCalculatorData({depositAmount2: value})}
+            onChangeText={value =>
+              updateCalculatorData({depositAmount2: value})
+            }
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
@@ -286,7 +311,9 @@ const DepositCalculator = () => {
             labelField="label"
             valueField="value"
             value={calculatorData.withdrawalType}
-            onChange={item => updateCalculatorData({withdrawalType: item.value})}
+            onChange={item =>
+              updateCalculatorData({withdrawalType: item.value})
+            }
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -301,18 +328,17 @@ const DepositCalculator = () => {
               styles.dateButton,
               {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
             ]}
-        
             onPress={() => handleOpenCalendar('withdrawal')}
-           
             activeOpacity={0.7}>
             <Image
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text style={[
-              styles.dateButtonText,
-              calculatorData.withdrawalDate && styles.dateSelectedText
-            ]}>
+            <Text
+              style={[
+                styles.dateButtonText,
+                calculatorData.withdrawalDate && styles.dateSelectedText,
+              ]}>
               {formatDate(calculatorData.withdrawalDate)}
             </Text>
           </TouchableOpacity>
@@ -322,7 +348,9 @@ const DepositCalculator = () => {
           <TextInput
             style={styles.input}
             value={calculatorData.withdrawalAmount}
-            onChangeText={(value) => updateCalculatorData({withdrawalAmount: value})}
+            onChangeText={value =>
+              updateCalculatorData({withdrawalAmount: value})
+            }
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
@@ -334,17 +362,18 @@ const DepositCalculator = () => {
           <TextInput
             style={styles.input}
             value={calculatorData.nonReducibleBalance}
-            onChangeText={(value) => updateCalculatorData({nonReducibleBalance: value})}
+            onChangeText={value =>
+              updateCalculatorData({nonReducibleBalance: value})
+            }
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
           />
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.calculateButton, {zIndex: -3}]}
-          onPress={handleCalculate}
-        >
+          onPress={handleCalculate}>
           <Text style={styles.calculateButtonText}>Calculate</Text>
         </TouchableOpacity>
       </View>
@@ -371,11 +400,23 @@ const DepositCalculator = () => {
                   textStyle={{color: '#FFFFFF'}}
                   todayBackgroundColor="transparent"
                   todayTextStyle={{color: '#FFFFFF'}}
-                  monthTitleStyle={{color: '#FFFFFF', fontSize: 16, fontWeight: '600'}}
-                  yearTitleStyle={{color: '#FFFFFF', fontSize: 16, fontWeight: '600'}}
+                  monthTitleStyle={{
+                    color: '#FFFFFF',
+                    fontSize: 16,
+                    fontWeight: '600',
+                  }}
+                  yearTitleStyle={{
+                    color: '#FFFFFF',
+                    fontSize: 16,
+                    fontWeight: '600',
+                  }}
                   dayLabelsWrapper={{borderTopWidth: 0, borderBottomWidth: 0}}
-                  previousComponent={<Text style={styles.navigationArrow}>{'<'}</Text>}
-                  nextComponent={<Text style={styles.navigationArrow}>{'>'}</Text>}
+                  previousComponent={
+                    <Text style={styles.navigationArrow}>{'<'}</Text>
+                  }
+                  nextComponent={
+                    <Text style={styles.navigationArrow}>{'>'}</Text>
+                  }
                 />
               </TouchableOpacity>
             </View>
