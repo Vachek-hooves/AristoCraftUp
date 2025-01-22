@@ -20,6 +20,7 @@ export const AppProvider = ({children}) => {
     withdrawalDate: null,
     withdrawalAmount: '',
     nonReducibleBalance: '',
+    calculationResult: null
   });
   console.log(calculatorData);
 

@@ -133,8 +133,8 @@ const DepositCalculator = ({navigation}) => {
           {/* <Text style={styles.label}>Deposit amount</Text> */}
           <TextInput
             style={styles.input}
-            value={calculatorData.depositAmount}
-            onChangeText={value => updateCalculatorData({depositAmount: value})}
+            value={calculatorData.termValue}
+            onChangeText={value => updateCalculatorData({termsPlacement: value})}
             keyboardType="numeric"
             placeholder="Term of placement"
             placeholderTextColor="#6B7280"
