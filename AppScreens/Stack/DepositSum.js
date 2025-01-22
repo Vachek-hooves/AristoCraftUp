@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { useAppContext } from '../../store/context';
 import PieChart from 'react-native-pie-chart';
@@ -7,14 +7,22 @@ import { calculateDeposit } from '../../utils/DepCalc';
 const DepositSum = () => {
   const { calculatorData } = useAppContext();
   const widthAndHeight = 180;
+  const [calculationResult, setCalculationResult] = useState(null);
 
-  // Get calculation results
-  const result = calculatorData.calculationResult || {};
-  
-  // Calculate values for pie chart
+  useEffect(() => {
+    try {
+      // Calculate results using DepCalc.js function
+      const result = calculateDeposit(calculatorData);
+      setCalculationResult(result);
+    } catch (error) {
+      console.error('Calculation error:', error);
+    }
+  }, [calculatorData]);
+
+  // Get values from calculation result
   const initialDeposit = parseFloat(calculatorData.depositAmount) || 0;
   const additionalDeposit = parseFloat(calculatorData.depositAmount2) || 0;
-  const totalInterest = result.accruedInterest || 0;
+  const totalInterest = calculationResult?.accruedInterest || 0;
   const total = initialDeposit + additionalDeposit + totalInterest;
 
   // Prepare pie chart data
@@ -81,32 +89,44 @@ const DepositSum = () => {
       <View style={styles.resultsCard}>
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Accrued interest</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.accruedInterest)}</Text>
+          <Text style={styles.resultValue}>
+            {formatCurrency(calculationResult?.accruedInterest)}
+          </Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Deposit amount with interest</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.finalAmount)}</Text>
+          <Text style={styles.resultValue}>
+            {formatCurrency(calculationResult?.finalAmount)}
+          </Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Capital gains</Text>
-          <Text style={styles.resultValue}>{result.capitalGains}%</Text>
+          <Text style={styles.resultValue}>
+            {calculationResult?.capitalGains}%
+          </Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Total amount of all deposits</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.totalDeposits)}</Text>
+          <Text style={styles.resultValue}>
+            {formatCurrency(calculationResult?.totalDeposits)}
+          </Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Total withdrawals</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.totalWithdrawals)}</Text>
+          <Text style={styles.resultValue}>
+            {formatCurrency(calculationResult?.totalWithdrawals)}
+          </Text>
         </View>
 
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Tax</Text>
-          <Text style={styles.resultValue}>{formatCurrency(result.tax)}</Text>
+          <Text style={styles.resultValue}>
+            {formatCurrency(calculationResult?.tax)}
+          </Text>
         </View>
       </View>
     </ScrollView>
