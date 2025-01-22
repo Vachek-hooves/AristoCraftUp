@@ -7,10 +7,18 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
+import {loanTermData} from '../../data/DropDown';
+import {validateMortgageForm} from '../../utils/mortgageValidation';
+import TabSelector from '../../components/MortgageComponents/TabSelector';
+import RadioSelector from '../../components/MortgageComponents/RadioSelector';
 
 const MortgageCalculator = ({navigation}) => {
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
   const [formData, setFormData] = useState({
     calculationType: 'BY PROPERTY VALUE',
     propertyValue: '',
@@ -22,82 +30,18 @@ const MortgageCalculator = ({navigation}) => {
     id: new Date().getTime().toString(),
   });
 
-  const [errors, setErrors] = useState({});
-  const [isFormValid, setIsFormValid] = useState(false);
-
-  const loanTermData = [
-    {label: 'Years', value: 'Years'},
-    {label: 'Months', value: 'Months'},
-    {label: 'Days', value: 'Days'},
-  ];
 
   // Validate form fields
   useEffect(() => {
-    validateForm();
-    console.log('Current form data:', formData); // Debug log
-    console.log('Current errors:', errors); // Debug log
-    console.log('Is form valid:', isFormValid); // Debug log
-  }, [formData]);
-
-  const validateForm = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    // Validate Property Value
-    if (!formData.propertyValue.trim()) {
-      newErrors.propertyValue = 'Property value is required';
-      isValid = false;
-    } else if (isNaN(formData.propertyValue) || parseFloat(formData.propertyValue) <= 0) {
-      newErrors.propertyValue = 'Enter a valid property value';
-      isValid = false;
-    }
-
-    // Validate Initial Payment
-    if (!formData.initialPayment.trim()) {
-      newErrors.initialPayment = 'Initial payment is required';
-      isValid = false;
-    } else {
-      const paymentValue = parseFloat(formData.initialPayment);
-      if (isNaN(paymentValue) || paymentValue < 0 || paymentValue > 100) {
-        newErrors.initialPayment = 'Initial payment must be between 0 and 100';
-        isValid = false;
-      }
-    }
-
-    // Validate Loan Term
-    if (!formData.loanTerm.trim()) {
-      newErrors.loanTerm = 'Loan term is required';
-      isValid = false;
-    } else {
-      const termValue = parseFloat(formData.loanTerm);
-      if (isNaN(termValue) || termValue <= 0) {
-        newErrors.loanTerm = 'Enter a valid loan term';
-        isValid = false;
-      }
-    }
-
-    // Validate Interest Rate
-    if (!formData.interestRate.trim()) {
-      newErrors.interestRate = 'Interest rate is required';
-      isValid = false;
-    } else {
-      const rateValue = parseFloat(formData.interestRate);
-      if (isNaN(rateValue) || rateValue < 0 || rateValue > 100) {
-        newErrors.interestRate = 'Interest rate must be between 0 and 100';
-        isValid = false;
-      }
-    }
-
-    console.log('Validation result:', { isValid, errors: newErrors }); // Debug log
+    const {isValid, errors: newErrors} = validateMortgageForm(formData);
     setErrors(newErrors);
     setIsFormValid(isValid);
-    return isValid;
-  };
+  }, [formData]);
 
   const handleCalculate = () => {
-    const isValid = validateForm();
+    const {isValid, errors: newErrors} = validateMortgageForm(formData);
     if (!isValid) {
-      const firstError = Object.values(errors)[0];
+      const firstError = Object.values(newErrors)[0];
       Alert.alert('Validation Error', firstError);
       return;
     }
@@ -112,11 +56,15 @@ const MortgageCalculator = ({navigation}) => {
     };
 
     console.log('Calculation data:', calculationData);
-    // Here you can add navigation to results or further processing
+    // Here add navigation to results or further processing
+  };
+
+  const handleTabChange = tab => {
+    setFormData({...formData, calculationType: tab});
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Mortgage Calculator</Text>
 
       {/* Calculator Icon */}
@@ -125,47 +73,27 @@ const MortgageCalculator = ({navigation}) => {
         style={styles.calculatorIcon}
       />
 
-      {/* Updated Tab Selector */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            formData.calculationType === 'BY PROPERTY VALUE' && styles.activeTab,
-          ]}
-          onPress={() => setFormData({...formData, calculationType: 'BY PROPERTY VALUE'})}>
-          <Text
-            style={[
-              styles.tabText,
-              formData.calculationType === 'BY PROPERTY VALUE' && styles.activeTabText,
-            ]}>
-            BY PROPERTY VALUE
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            formData.calculationType === 'BY LOAN AMOUNT' && styles.activeTab,
-          ]}
-          onPress={() => setFormData({...formData, calculationType: 'BY LOAN AMOUNT'})}>
-          <Text
-            style={[
-              styles.tabText,
-              formData.calculationType === 'BY LOAN AMOUNT' && styles.activeTabText,
-            ]}>
-            BY LOAN AMOUNT
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
+      <TabSelector
+        activeTab={formData.calculationType}
+        onTabChange={handleTabChange}
+      />
 
       {/* Calculator Form */}
       <View style={styles.formContainer}>
         <TextInput
           style={[styles.input, errors.propertyValue && styles.inputError]}
-          placeholder={formData.calculationType === 'BY PROPERTY VALUE' ? "Property Value" : "Loan Amount"}
+          placeholder={
+            formData.calculationType === 'BY PROPERTY VALUE'
+              ? 'Property Value'
+              : 'Loan Amount'
+          }
           placeholderTextColor="#6B7280"
           keyboardType="numeric"
           value={formData.propertyValue}
-          onChangeText={(value) => setFormData({...formData, propertyValue: value})}
+          onChangeText={value =>
+            setFormData({...formData, propertyValue: value})
+          }
         />
 
         <TextInput
@@ -174,17 +102,23 @@ const MortgageCalculator = ({navigation}) => {
           placeholderTextColor="#6B7280"
           keyboardType="numeric"
           value={formData.initialPayment}
-          onChangeText={(value) => setFormData({...formData, initialPayment: value})}
+          onChangeText={value =>
+            setFormData({...formData, initialPayment: value})
+          }
         />
 
         <View style={styles.termContainer}>
           <TextInput
-            style={[styles.input, styles.termInput, errors.loanTerm && styles.inputError]}
+            style={[
+              styles.input,
+              styles.termInput,
+              errors.loanTerm && styles.inputError,
+            ]}
             placeholder="Loan term"
             placeholderTextColor="#6B7280"
             keyboardType="numeric"
             value={formData.loanTerm}
-            onChangeText={(value) => setFormData({...formData, loanTerm: value})}
+            onChangeText={value => setFormData({...formData, loanTerm: value})}
           />
           <Dropdown
             style={styles.dropdown}
@@ -210,36 +144,17 @@ const MortgageCalculator = ({navigation}) => {
           placeholderTextColor="#6B7280"
           keyboardType="numeric"
           value={formData.interestRate}
-          onChangeText={(value) => setFormData({...formData, interestRate: value})}
+          onChangeText={value =>
+            setFormData({...formData, interestRate: value})
+          }
         />
 
-        <Text style={styles.label}>Type of Monthly Payments</Text>
-
-        <TouchableOpacity
-          style={[
-            styles.radioButton,
-            formData.paymentType === 'Annuity' && styles.radioButtonActive,
-          ]}
-          onPress={() => setFormData({...formData, paymentType: 'Annuity'})}>
-          <View style={styles.radio}>
-            {formData.paymentType === 'Annuity' && <View style={styles.radioInner} />}
-          </View>
-          <Text style={styles.radioText}>Annuity</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.radioButton,
-            formData.paymentType === 'Differentiated' && styles.radioButtonActive,
-          ]}
-          onPress={() => setFormData({...formData, paymentType: 'Differentiated'})}>
-          <View style={styles.radio}>
-            {formData.paymentType === 'Differentiated' && (
-              <View style={styles.radioInner} />
-            )}
-          </View>
-          <Text style={styles.radioText}>Differentiated</Text>
-        </TouchableOpacity>
+        <RadioSelector
+          selectedValue={formData.paymentType}
+          onValueChange={value =>
+            setFormData({...formData, paymentType: value})
+          }
+        />
 
         <TouchableOpacity
           style={[
@@ -248,10 +163,11 @@ const MortgageCalculator = ({navigation}) => {
           ]}
           onPress={handleCalculate}
           disabled={!isFormValid}>
-          <Text style={styles.calculateButtonText}>Calculate</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <Text style={styles.calculateButtonText}>Calculate</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -269,30 +185,10 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   calculatorIcon: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     alignSelf: 'center',
     marginBottom: 24,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginBottom: 24,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#2196F3',
-  },
-  tabText: {
-    color: '#6B7280',
-    fontSize: 14,
-  },
-  activeTabText: {
-    color: '#2196F3',
   },
   formContainer: {
     backgroundColor: '#001250',
@@ -317,7 +213,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 0,
     marginRight: 8,
-    backgroundColor: '#000D39',
   },
   dropdown: {
     backgroundColor: '#000D39',
@@ -330,14 +225,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#001250',
     borderRadius: 12,
     marginTop: 4,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   dropdownItemContainer: {
     padding: 4,
@@ -353,34 +240,6 @@ const styles = StyleSheet.create({
   dropdownSelectedText: {
     color: 'white',
     fontSize: 16,
-  },
-  label: {
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  radioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#2F3B52',
-    marginRight: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#2196F3',
-  },
-  radioText: {
-    color: '#FFFFFF',
   },
   calculateButton: {
     backgroundColor: '#2196F3',
@@ -400,6 +259,9 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: '#FF4444',
+  },
+  scrollView: {
+    flex: 1,
   },
 });
 

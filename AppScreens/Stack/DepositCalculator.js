@@ -9,7 +9,7 @@ import {
   ScrollView,
   Modal,
   Alert,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -139,7 +139,7 @@ const DepositCalculator = ({navigation}) => {
         withdrawalType: calculatorData.withdrawalType,
         withdrawalDate: calculatorData.withdrawalDate,
         withdrawalAmount: calculatorData.withdrawalAmount,
-        nonReducibleBalance: calculatorData.nonReducibleBalance
+        nonReducibleBalance: calculatorData.nonReducibleBalance,
       };
 
       const result = calculateDeposit(calculationData);
@@ -148,19 +148,18 @@ const DepositCalculator = ({navigation}) => {
       // Save results
       await updateCalculatorData({
         ...calculatorData,
-        calculationResult: result
+        calculationResult: result,
       });
 
       // Navigate to results
       navigation.navigate('DepositSum');
-
     } catch (error) {
       console.error('Calculation error:', error);
       Alert.alert('Error', error.message || 'Failed to calculate deposit');
     }
   };
 
-  const calculateDeposit = (data) => {
+  const calculateDeposit = data => {
     // Implement your calculation logic here
     // This is a placeholder and should be replaced with actual calculation
     return 0;
@@ -168,96 +167,54 @@ const DepositCalculator = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>Deposit Calculator</Text>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>Deposit Calculator</Text>
 
-      <Image
-        source={require('../../assets/images/vector/calculator.png')}
-        style={styles.calculatorIcon}
-      />
+        <Image
+          source={require('../../assets/images/vector/calculator.png')}
+          style={styles.calculatorIcon}
+        />
 
-      <View style={styles.formContainer}>
-        <View style={[styles.inputGroup, {zIndex: 10}]}>
-          {/* <Text style={styles.label}>Deposit amount</Text> */}
-          <TextInput
-            style={styles.input}
-            value={calculatorData.depositAmount}
-            onChangeText={value => updateCalculatorData({depositAmount: value})}
-            keyboardType="numeric"
-            placeholder="Deposit amount"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 10}]}>
-          {/* <Text style={styles.label}>Deposit amount</Text> */}
-          <TextInput
-            style={styles.input}
-            value={calculatorData.termValue}
-            onChangeText={value => updateCalculatorData({termValue: value})}
-            keyboardType="numeric"
-            placeholder="Term of placement"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 9}]}>
-          {/* <Text style={styles.label}>Term of placement</Text> */}
-          <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownSelectedText}
-            data={termOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            value={calculatorData.termPlacement}
-            onChange={item => updateCalculatorData({termPlacement: item.value})}
-            containerStyle={styles.dropdownContainer}
-            itemContainerStyle={styles.dropdownItemContainer}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor="#000824"
-            backgroundColor={'#001250' + 90}
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 8}]}>
-          {/* <Text style={styles.label}>Date</Text> */}
-          <TouchableOpacity
-            style={[
-              styles.dateButton,
-              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
-            ]}
-            onPress={() => handleOpenCalendar('main')}
-            activeOpacity={0.7}>
-            <Image
-              source={require('../../assets/images/vector/calendar.png')}
-              style={styles.calendarIcon}
+        <View style={styles.formContainer}>
+          <View style={[styles.inputGroup, {zIndex: 10}]}>
+            {/* <Text style={styles.label}>Deposit amount</Text> */}
+            <TextInput
+              style={styles.input}
+              value={calculatorData.depositAmount}
+              onChangeText={value =>
+                updateCalculatorData({depositAmount: value})
+              }
+              keyboardType="numeric"
+              placeholder="Deposit amount"
+              placeholderTextColor="#6B7280"
             />
-            <Text
-              style={[
-                styles.dateButtonText,
-                calculatorData.selectedDate && styles.dateSelectedText,
-              ]}>
-              {formatDate(calculatorData.selectedDate)}
-            </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <View style={[styles.inputGroup, {zIndex: 7}]}>
-          <Text style={styles.label}>Interest rate</Text>
-          <View style={styles.rateContainer}>
+          <View style={[styles.inputGroup, {zIndex: 10}]}>
+            {/* <Text style={styles.label}>Deposit amount</Text> */}
+            <TextInput
+              style={styles.input}
+              value={calculatorData.termValue}
+              onChangeText={value => updateCalculatorData({termValue: value})}
+              keyboardType="numeric"
+              placeholder="Term of placement"
+              placeholderTextColor="#6B7280"
+            />
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 9}]}>
+            {/* <Text style={styles.label}>Term of placement</Text> */}
             <Dropdown
-              style={[styles.dropdown, {flex: 1}]}
+              style={styles.dropdown}
               placeholderStyle={styles.dropdownPlaceholder}
               selectedTextStyle={styles.dropdownSelectedText}
-              data={interestRateOptions}
+              data={termOptions}
               maxHeight={300}
               labelField="label"
               valueField="value"
-              value={calculatorData.interestRate}
+              value={calculatorData.termPlacement}
               onChange={item =>
-                updateCalculatorData({interestRate: item.value})
+                updateCalculatorData({termPlacement: item.value})
               }
               containerStyle={styles.dropdownContainer}
               itemContainerStyle={styles.dropdownItemContainer}
@@ -265,244 +222,290 @@ const DepositCalculator = ({navigation}) => {
               activeColor="#000824"
               backgroundColor={'#001250' + 90}
             />
-            <View style={styles.percentInputContainer}>
-              <TextInput
-                style={styles.percentInput}
-                value={calculatorData.interestPercent}
-                onChangeText={value =>
-                  updateCalculatorData({interestPercent: value})
-                }
-                keyboardType="numeric"
-                placeholder="0"
-                placeholderTextColor="#6B7280"
-                maxLength={3}
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 8}]}>
+            {/* <Text style={styles.label}>Date</Text> */}
+            <TouchableOpacity
+              style={[
+                styles.dateButton,
+                {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
+              ]}
+              onPress={() => handleOpenCalendar('main')}
+              activeOpacity={0.7}>
+              <Image
+                source={require('../../assets/images/vector/calendar.png')}
+                style={styles.calendarIcon}
               />
-              <Text style={styles.percentSign}>%</Text>
+              <Text
+                style={[
+                  styles.dateButtonText,
+                  calculatorData.selectedDate && styles.dateSelectedText,
+                ]}>
+                {formatDate(calculatorData.selectedDate)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 7}]}>
+            <Text style={styles.label}>Interest rate</Text>
+            <View style={styles.rateContainer}>
+              <Dropdown
+                style={[styles.dropdown, {flex: 1}]}
+                placeholderStyle={styles.dropdownPlaceholder}
+                selectedTextStyle={styles.dropdownSelectedText}
+                data={interestRateOptions}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                value={calculatorData.interestRate}
+                onChange={item =>
+                  updateCalculatorData({interestRate: item.value})
+                }
+                containerStyle={styles.dropdownContainer}
+                itemContainerStyle={styles.dropdownItemContainer}
+                itemTextStyle={styles.dropdownItemText}
+                activeColor="#000824"
+                backgroundColor={'#001250' + 90}
+              />
+              <View style={styles.percentInputContainer}>
+                <TextInput
+                  style={styles.percentInput}
+                  value={calculatorData.interestPercent}
+                  onChangeText={value =>
+                    updateCalculatorData({interestPercent: value})
+                  }
+                  keyboardType="numeric"
+                  placeholder="0"
+                  placeholderTextColor="#6B7280"
+                  maxLength={3}
+                />
+                <Text style={styles.percentSign}>%</Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={[styles.inputGroup, {zIndex: 6}]}>
-          <TouchableOpacity
-            style={styles.checkboxRow}
-            onPress={() =>
-              updateCalculatorData({
-                isCapitalization: !calculatorData.isCapitalization,
-              })
-            }>
-            <View
+          <View style={[styles.inputGroup, {zIndex: 6}]}>
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() =>
+                updateCalculatorData({
+                  isCapitalization: !calculatorData.isCapitalization,
+                })
+              }>
+              <View
+                style={[
+                  styles.checkbox,
+                  calculatorData.isCapitalization && styles.checkboxChecked,
+                ]}
+              />
+              <Text style={styles.label}>Interest capitalization</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 5}]}>
+            <Text style={styles.label}>Interest payout frequency</Text>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.dropdownPlaceholder}
+              selectedTextStyle={styles.dropdownSelectedText}
+              data={payoutFrequencyOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              value={calculatorData.payoutFrequency}
+              onChange={item =>
+                updateCalculatorData({payoutFrequency: item.value})
+              }
+              containerStyle={styles.dropdownContainer}
+              itemContainerStyle={styles.dropdownItemContainer}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor="#000824"
+              backgroundColor={'#001250' + 90}
+            />
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 4}]}>
+            <Text style={styles.label}>Deposits</Text>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.dropdownPlaceholder}
+              selectedTextStyle={styles.dropdownSelectedText}
+              data={withdrawalOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              value={calculatorData.deposits}
+              onChange={item => updateCalculatorData({deposits: item.value})}
+              containerStyle={styles.dropdownContainer}
+              itemContainerStyle={styles.dropdownItemContainer}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor="#000824"
+              backgroundColor={'#001250' + 90}
+            />
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 3}]}>
+            <TouchableOpacity
               style={[
-                styles.checkbox,
-                calculatorData.isCapitalization && styles.checkboxChecked,
+                styles.dateButton,
+                {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
               ]}
+              onPress={() => handleOpenCalendar('deposit')}
+              activeOpacity={0.7}>
+              <Image
+                source={require('../../assets/images/vector/calendar.png')}
+                style={styles.calendarIcon}
+              />
+              <Text
+                style={[
+                  styles.dateButtonText,
+                  calculatorData.depositDate && styles.dateSelectedText,
+                ]}>
+                {formatDate(calculatorData.depositDate)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 2}]}>
+            <TextInput
+              style={styles.input}
+              value={calculatorData.depositAmount2}
+              onChangeText={value =>
+                updateCalculatorData({depositAmount2: value})
+              }
+              keyboardType="numeric"
+              placeholder="Enter amount"
+              placeholderTextColor="#6B7280"
             />
-            <Text style={styles.label}>Interest capitalization</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
-          <Text style={styles.label}>Interest payout frequency</Text>
-          <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownSelectedText}
-            data={payoutFrequencyOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            value={calculatorData.payoutFrequency}
-            onChange={item =>
-              updateCalculatorData({payoutFrequency: item.value})
-            }
-            containerStyle={styles.dropdownContainer}
-            itemContainerStyle={styles.dropdownItemContainer}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor="#000824"
-            backgroundColor={'#001250' + 90}
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 4}]}>
-          <Text style={styles.label}>Deposits</Text>
-          <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownSelectedText}
-            data={withdrawalOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            value={calculatorData.deposits}
-            onChange={item => updateCalculatorData({deposits: item.value})}
-            containerStyle={styles.dropdownContainer}
-            itemContainerStyle={styles.dropdownItemContainer}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor="#000824"
-            backgroundColor={'#001250' + 90}
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 3}]}>
-          <TouchableOpacity
-            style={[
-              styles.dateButton,
-              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
-            ]}
-            onPress={() => handleOpenCalendar('deposit')}
-            activeOpacity={0.7}>
-            <Image
-              source={require('../../assets/images/vector/calendar.png')}
-              style={styles.calendarIcon}
+          <View style={[styles.inputGroup, {zIndex: 1}]}>
+            <Text style={styles.label}>Partial withdrawals</Text>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.dropdownPlaceholder}
+              selectedTextStyle={styles.dropdownSelectedText}
+              data={withdrawalOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              value={calculatorData.withdrawalType}
+              onChange={item =>
+                updateCalculatorData({withdrawalType: item.value})
+              }
+              containerStyle={styles.dropdownContainer}
+              itemContainerStyle={styles.dropdownItemContainer}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor="#000824"
+              backgroundColor={'#001250' + 90}
             />
-            <Text
+          </View>
+
+          <View style={[styles.inputGroup, {zIndex: 0}]}>
+            <TouchableOpacity
               style={[
-                styles.dateButtonText,
-                calculatorData.depositDate && styles.dateSelectedText,
-              ]}>
-              {formatDate(calculatorData.depositDate)}
-            </Text>
-          </TouchableOpacity>
-        </View>
+                styles.dateButton,
+                {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
+              ]}
+              onPress={() => handleOpenCalendar('withdrawal')}
+              activeOpacity={0.7}>
+              <Image
+                source={require('../../assets/images/vector/calendar.png')}
+                style={styles.calendarIcon}
+              />
+              <Text
+                style={[
+                  styles.dateButtonText,
+                  calculatorData.withdrawalDate && styles.dateSelectedText,
+                ]}>
+                {formatDate(calculatorData.withdrawalDate)}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={[styles.inputGroup, {zIndex: 2}]}>
-          <TextInput
-            style={styles.input}
-            value={calculatorData.depositAmount2}
-            onChangeText={value =>
-              updateCalculatorData({depositAmount2: value})
-            }
-            keyboardType="numeric"
-            placeholder="Enter amount"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 1}]}>
-          <Text style={styles.label}>Partial withdrawals</Text>
-          <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownSelectedText}
-            data={withdrawalOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            value={calculatorData.withdrawalType}
-            onChange={item =>
-              updateCalculatorData({withdrawalType: item.value})
-            }
-            containerStyle={styles.dropdownContainer}
-            itemContainerStyle={styles.dropdownItemContainer}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor="#000824"
-            backgroundColor={'#001250' + 90}
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 0}]}>
-          <TouchableOpacity
-            style={[
-              styles.dateButton,
-              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
-            ]}
-            onPress={() => handleOpenCalendar('withdrawal')}
-            activeOpacity={0.7}>
-            <Image
-              source={require('../../assets/images/vector/calendar.png')}
-              style={styles.calendarIcon}
+          <View style={[styles.inputGroup, {zIndex: -1}]}>
+            <TextInput
+              style={styles.input}
+              value={calculatorData.withdrawalAmount}
+              onChangeText={value =>
+                updateCalculatorData({withdrawalAmount: value})
+              }
+              keyboardType="numeric"
+              placeholder="Amount"
+              placeholderTextColor="#6B7280"
             />
-            <Text
-              style={[
-                styles.dateButtonText,
-                calculatorData.withdrawalDate && styles.dateSelectedText,
-              ]}>
-              {formatDate(calculatorData.withdrawalDate)}
-            </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <View style={[styles.inputGroup, {zIndex: -1}]}>
-          <TextInput
-            style={styles.input}
-            value={calculatorData.withdrawalAmount}
-            onChangeText={value =>
-              updateCalculatorData({withdrawalAmount: value})
-            }
-            keyboardType="numeric"
-            placeholder="Amount"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
+          <View style={[styles.inputGroup, {zIndex: -2}]}>
+            <Text style={styles.label}>Non-reducible balance</Text>
+            <TextInput
+              style={styles.input}
+              value={calculatorData.nonReducibleBalance}
+              onChangeText={value =>
+                updateCalculatorData({nonReducibleBalance: value})
+              }
+              keyboardType="numeric"
+              placeholder="Amount"
+              placeholderTextColor="#6B7280"
+            />
+          </View>
 
-        <View style={[styles.inputGroup, {zIndex: -2}]}>
-          <Text style={styles.label}>Non-reducible balance</Text>
-          <TextInput
-            style={styles.input}
-            value={calculatorData.nonReducibleBalance}
-            onChangeText={value =>
-              updateCalculatorData({nonReducibleBalance: value})
-            }
-            keyboardType="numeric"
-            placeholder="Amount"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.calculateButton, {zIndex: -3}]}
-          onPress={handleCalculate}>
-          <Text style={styles.calculateButtonText}>Calculate</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        visible={isCalendarVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsCalendarVisible(false)}
-        statusBarTranslucent>
-        <View style={styles.modalOverlay}>
           <TouchableOpacity
-            style={styles.modalBackground}
-            activeOpacity={1}
-            onPress={() => setIsCalendarVisible(false)}>
-            <View style={styles.calendarContainer}>
-              <TouchableOpacity
-                activeOpacity={1}
-                onPress={e => e.stopPropagation()}>
-                <CalendarPicker
-                  onDateChange={handleDateChange}
-                  selectedDayColor="#0066FF"
-                  selectedDayTextColor="#FFFFFF"
-                  textStyle={{color: '#FFFFFF'}}
-                  todayBackgroundColor="transparent"
-                  todayTextStyle={{color: '#FFFFFF'}}
-                  monthTitleStyle={{
-                    color: '#FFFFFF',
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}
-                  yearTitleStyle={{
-                    color: '#FFFFFF',
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}
-                  dayLabelsWrapper={{borderTopWidth: 0, borderBottomWidth: 0}}
-                  previousComponent={
-                    <Text style={styles.navigationArrow}>{'<'}</Text>
-                  }
-                  nextComponent={
-                    <Text style={styles.navigationArrow}>{'>'}</Text>
-                  }
-                />
-              </TouchableOpacity>
-            </View>
+            style={[styles.calculateButton, {zIndex: -3}]}
+            onPress={handleCalculate}>
+            <Text style={styles.calculateButtonText}>Calculate</Text>
           </TouchableOpacity>
         </View>
-      </Modal>
-      <View style={{height: 100}} />
-    </ScrollView>
-      </SafeAreaView>
+
+        <Modal
+          visible={isCalendarVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsCalendarVisible(false)}
+          statusBarTranslucent>
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalBackground}
+              activeOpacity={1}
+              onPress={() => setIsCalendarVisible(false)}>
+              <View style={styles.calendarContainer}>
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={e => e.stopPropagation()}>
+                  <CalendarPicker
+                    onDateChange={handleDateChange}
+                    selectedDayColor="#0066FF"
+                    selectedDayTextColor="#FFFFFF"
+                    textStyle={{color: '#FFFFFF'}}
+                    todayBackgroundColor="transparent"
+                    todayTextStyle={{color: '#FFFFFF'}}
+                    monthTitleStyle={{
+                      color: '#FFFFFF',
+                      fontSize: 16,
+                      fontWeight: '600',
+                    }}
+                    yearTitleStyle={{
+                      color: '#FFFFFF',
+                      fontSize: 16,
+                      fontWeight: '600',
+                    }}
+                    dayLabelsWrapper={{borderTopWidth: 0, borderBottomWidth: 0}}
+                    previousComponent={
+                      <Text style={styles.navigationArrow}>{'<'}</Text>
+                    }
+                    nextComponent={
+                      <Text style={styles.navigationArrow}>{'>'}</Text>
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        <View style={{height: 100}} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -516,7 +519,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#001250',
-  //  paddingTop:50
+    //  paddingTop:50
   },
   title: {
     fontSize: 24,

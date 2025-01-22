@@ -27,3 +27,9 @@ export const withdrawalOptions = [
   {label: 'Once a quarter', value: 'Once a quarter'},
   {label: 'Once a year', value: 'Once a year'},
 ];
+
+export const loanTermData = [
+  {label: 'Years', value: 'Years'},
+  {label: 'Months', value: 'Months'},
+  {label: 'Days', value: 'Days'},
+];
