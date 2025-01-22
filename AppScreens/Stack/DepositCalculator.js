@@ -19,19 +19,23 @@ import {
 import CalendarPicker from 'react-native-calendar-picker';
 
 const DepositCalculator = () => {
-  const [depositAmount, setDepositAmount] = useState('5000');
-  const [termValue, setTermValue] = useState('12');
+  const [depositAmount, setDepositAmount] = useState('');
+  const [termValue, setTermValue] = useState('');
   const [termPlacement, setTermPlacement] = useState('Months');
+  const [selectedDate, setSelectedDate] = useState(null);
   const [interestRate, setInterestRate] = useState('Fixed');
+  const [interestPercent, setInterestPercent] = useState('');
+  const [isCapitalization, setIsCapitalization] = useState(false);
   const [payoutFrequency, setPayoutFrequency] = useState('Every week');
   const [deposits, setDeposits] = useState('One-time');
-  const [depositAmount2, setDepositAmount2] = useState('500');
+  const [depositDate, setDepositDate] = useState(null);
+  const [depositAmount2, setDepositAmount2] = useState('');
   const [withdrawalType, setWithdrawalType] = useState('One-time');
-  const [withdrawalAmount, setWithdrawalAmount] = useState('500');
-  const [nonReducibleBalance, setNonReducibleBalance] = useState('60');
-  const [interestPercent, setInterestPercent] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [withdrawalDate, setWithdrawalDate] = useState(null);
+  const [withdrawalAmount, setWithdrawalAmount] = useState('');
+  const [nonReducibleBalance, setNonReducibleBalance] = useState('');
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [activeCalendar, setActiveCalendar] = useState(null);
 
   const formatDate = date => {
     if (!date) return 'Select date';
@@ -41,9 +45,23 @@ const DepositCalculator = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const handleDateChange = date => {
-    console.log('Selected date:', date);
-    setSelectedDate(date);
+  const handleOpenCalendar = (type) => {
+    setActiveCalendar(type);
+    setIsCalendarVisible(true);
+  };
+
+  const handleDateChange = (date) => {
+    switch (activeCalendar) {
+      case 'main':
+        setSelectedDate(date);
+        break;
+      case 'deposit':
+        setDepositDate(date);
+        break;
+      case 'withdrawal':
+        setWithdrawalDate(date);
+        break;
+    }
     setIsCalendarVisible(false);
   };
 
@@ -58,31 +76,19 @@ const DepositCalculator = () => {
 
       <View style={styles.formContainer}>
         <View style={[styles.inputGroup, {zIndex: 10}]}>
-          <Text style={styles.label}>Deposit amount</Text>
+          {/* <Text style={styles.label}>Deposit amount</Text> */}
           <TextInput
             style={styles.input}
             value={depositAmount}
             onChangeText={setDepositAmount}
             keyboardType="numeric"
-            placeholder="Enter amount"
+            placeholder="Deposit amount"
             placeholderTextColor="#6B7280"
           />
         </View>
 
         <View style={[styles.inputGroup, {zIndex: 9}]}>
-          <Text style={styles.label}>Term value</Text>
-          <TextInput
-            style={styles.input}
-            value={termValue}
-            onChangeText={setTermValue}
-            keyboardType="numeric"
-            placeholder="Enter term"
-            placeholderTextColor="#6B7280"
-          />
-        </View>
-
-        <View style={[styles.inputGroup, {zIndex: 8}]}>
-          <Text style={styles.label}>Term of placement</Text>
+          {/* <Text style={styles.label}>Term of placement</Text> */}
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -100,14 +106,15 @@ const DepositCalculator = () => {
             backgroundColor={'#001250' + 90}
           />
         </View>
-        <View style={[styles.inputGroup, {zIndex: 7}, ,]}>
-          <Text style={styles.label}>Date</Text>
+
+        <View style={[styles.inputGroup, {zIndex: 8}]}>
+          {/* <Text style={styles.label}>Date</Text> */}
           <TouchableOpacity
             style={[
               styles.dateButton,
               {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
             ]}
-            onPress={() => setIsCalendarVisible(true)}
+            onPress={() => handleOpenCalendar('main')}
             activeOpacity={0.7}>
             <Image
               source={require('../../assets/images/vector/calendar.png')}
@@ -123,27 +130,25 @@ const DepositCalculator = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 6}]}>
+        <View style={[styles.inputGroup, {zIndex: 7}]}>
           <Text style={styles.label}>Interest rate</Text>
           <View style={styles.rateContainer}>
-            <View style={{flex: 1}}>
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.dropdownPlaceholder}
-                selectedTextStyle={styles.dropdownSelectedText}
-                data={interestRateOptions}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                value={interestRate}
-                onChange={item => setInterestRate(item.value)}
-                containerStyle={styles.dropdownContainer}
-                itemContainerStyle={styles.dropdownItemContainer}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor="#000824"
-                backgroundColor={'#001250' + 90}
-              />
-            </View>
+            <Dropdown
+              style={[styles.dropdown, {flex: 1}]}
+              placeholderStyle={styles.dropdownPlaceholder}
+              selectedTextStyle={styles.dropdownSelectedText}
+              data={interestRateOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              value={interestRate}
+              onChange={item => setInterestRate(item.value)}
+              containerStyle={styles.dropdownContainer}
+              itemContainerStyle={styles.dropdownItemContainer}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor="#000824"
+              backgroundColor={'#001250' + 90}
+            />
             <View style={styles.percentInputContainer}>
               <TextInput
                 style={styles.percentInput}
@@ -158,15 +163,17 @@ const DepositCalculator = () => {
           </View>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
-          <View style={styles.checkboxRow}>
-            <TouchableOpacity style={styles.checkbox} />
+        <View style={[styles.inputGroup, {zIndex: 6}]}>
+          <TouchableOpacity
+            style={styles.checkboxRow}
+            onPress={() => setIsCapitalization(!isCapitalization)}>
+            <View style={[styles.checkbox, isCapitalization && styles.checkboxChecked]} />
             <Text style={styles.label}>Interest capitalization</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 4}]}>
-          <Text style={styles.label}>Interest payout frequency</Text>
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
+          <Text style={styles.label}>Deposits</Text>
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -185,8 +192,8 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 3}]}>
-          <Text style={styles.label}>Deposits</Text>
+        <View style={[styles.inputGroup, {zIndex: 4}]}>
+          {/* <Text style={styles.label}>Deposits</Text> */}
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -205,8 +212,8 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 2}]}>
-          <Text style={styles.label}>Amount</Text>
+        <View style={[styles.inputGroup, {zIndex: 3}]}>
+          {/* <Text style={styles.label}>Amount</Text> */}
           <TextInput
             style={styles.input}
             value={depositAmount2}
@@ -217,7 +224,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 1}]}>
+        <View style={[styles.inputGroup, {zIndex: 2}]}>
           <Text style={styles.label}>Partial withdrawals</Text>
           <Dropdown
             style={styles.dropdown}
@@ -237,8 +244,31 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 0}]}>
-          <Text style={styles.label}>Amount</Text>
+        <View style={[styles.inputGroup, {zIndex: 8}]}>
+          {/* <Text style={styles.label}>Date</Text> */}
+          <TouchableOpacity
+            style={[
+              styles.dateButton,
+              {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
+            ]}
+            onPress={() => handleOpenCalendar('main')}
+            activeOpacity={0.7}>
+            <Image
+              source={require('../../assets/images/vector/calendar.png')}
+              style={styles.calendarIcon}
+            />
+            <Text
+              style={[
+                styles.dateButtonText,
+                selectedDate && styles.dateSelectedText,
+              ]}>
+              {formatDate(selectedDate)}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={[styles.inputGroup, {zIndex: 1}]}>
+          {/* <Text style={styles.label}>Amount</Text> */}
           <TextInput
             style={styles.input}
             value={withdrawalAmount}
@@ -312,7 +342,6 @@ const DepositCalculator = () => {
                   }
                   weekdays={['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']}
                   weekdaysStyle={styles.weekdayLabel}
-                //   dayLabelsWrapper={styles.dayLabelsWrapper}
                   customDatesStyles={[
                     {
                       date: selectedDate,
@@ -422,7 +451,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: '100%',
-    // maxWidth: 340,
   },
   rateContainer: {
     flexDirection: 'row',
@@ -459,6 +487,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#0066FF',
     borderRadius: 6,
+  },
+  checkboxChecked: {
+    backgroundColor: '#0066FF',
   },
   calculateButton: {
     backgroundColor: '#666666',
@@ -525,7 +556,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   dropdownPlaceholder: {
-    // color: '#6B7280',
     fontSize: 17,
   },
   dropdownSelectedText: {
