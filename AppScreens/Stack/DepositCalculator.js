@@ -1,20 +1,34 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
+import React, {useState} from 'react';
+import CustomDropdown from '../../components/Custom/CustomDropdown';
 
 const DepositCalculator = () => {
-  const [depositAmount, setDepositAmount] = useState('5000')
-  const [termValue, setTermValue] = useState('12')
-  const [termPlacement, setTermPlacement] = useState('Months')
-  const [interestRate, setInterestRate] = useState('Fixed')
-  const [payoutFrequency, setPayoutFrequency] = useState('Every week')
-  const [deposits, setDeposits] = useState('One-time')
-  const [depositAmount2, setDepositAmount2] = useState('500')
-  const [withdrawalType, setWithdrawalType] = useState('One-time')
-  const [withdrawalAmount, setWithdrawalAmount] = useState('500')
-  const [nonReducibleBalance, setNonReducibleBalance] = useState('60')
+  const [depositAmount, setDepositAmount] = useState('5000');
+  const [termValue, setTermValue] = useState('12');
+  const [termPlacement, setTermPlacement] = useState('Months');
+  const [interestRate, setInterestRate] = useState('Fixed');
+  const [payoutFrequency, setPayoutFrequency] = useState('Every week');
+  const [deposits, setDeposits] = useState('One-time');
+  const [depositAmount2, setDepositAmount2] = useState('500');
+  const [withdrawalType, setWithdrawalType] = useState('One-time');
+  const [withdrawalAmount, setWithdrawalAmount] = useState('500');
+  const [nonReducibleBalance, setNonReducibleBalance] = useState('60');
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const termOptions = ['Months', 'Days', 'Years']
-  const interestRateOptions = ['Fixed', 'Depends on the amount', 'Depends on the time limit']
+  const termOptions = ['Months', 'Days', 'Years'];
+  const interestRateOptions = [
+    'Fixed',
+    'Depends on the amount',
+    'Depends on the time limit',
+  ];
   const payoutFrequencyOptions = [
     'Every week',
     'At the end of the term',
@@ -22,29 +36,53 @@ const DepositCalculator = () => {
     'Once a month',
     'Once a quarter',
     'Every six months',
-    'Once a year'
-  ]
+    'Once a year',
+  ];
   const withdrawalOptions = [
     'One-time',
     'Once a month',
     'Once every 2 months',
     'Once a quarter',
-    'Once a year'
-  ]
+    'Once a year',
+  ];
+
+  const handleDropdownPress = dropdownName => {
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const handleOptionSelect = (option, setter) => {
+    setter(option);
+    setActiveDropdown(null);
+  };
+
+  const renderDropdown = (options, currentValue, setter, index) => {
+    return (
+      <View style={[styles.dropdownMenu, {zIndex: 1000 - index}]}>
+        {options.map((option, idx) => (
+          <TouchableOpacity
+            key={idx}
+            style={styles.dropdownItem}
+            onPress={() => handleOptionSelect(option, setter)}>
+            <Text style={styles.dropdownText}>{option}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Deposit Calculator</Text>
-      
-      <Image 
+
+      <Image
         source={require('../../assets/images/vector/calculator.png')}
         style={styles.calculatorIcon}
       />
 
       <View style={styles.formContainer}>
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 6}]}>
           <Text style={styles.label}>Deposit amount</Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={depositAmount}
             onChangeText={setDepositAmount}
@@ -54,9 +92,9 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
           <Text style={styles.label}>Term value</Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={termValue}
             onChangeText={setTermValue}
@@ -66,18 +104,18 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Term of placement</Text>
-          <TouchableOpacity style={styles.selectButton}>
-            <Text style={styles.selectButtonText}>{termPlacement}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
+        <CustomDropdown
+          label="Term of placement"
+          options={termOptions}
+          value={termPlacement}
+          onSelect={setTermPlacement}
+          zIndex={8}
+        />
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 3}]}>
           <Text style={styles.label}>Date</Text>
           <TouchableOpacity style={styles.dateButton}>
-            <Image 
+            <Image
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
@@ -85,43 +123,53 @@ const DepositCalculator = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 6}]}>
           <Text style={styles.label}>Interest rate</Text>
           <View style={styles.rateContainer}>
-            <TouchableOpacity style={[styles.selectButton, { flex: 1 }]}>
-              <Text style={styles.selectButtonText}>{interestRate}</Text>
-              <Text style={styles.chevron}>›</Text>
-            </TouchableOpacity>
+            <CustomDropdown
+              options={interestRateOptions}
+              value={interestRate}
+              onSelect={setInterestRate}
+              zIndex={6}
+            />
             <Text style={styles.percentSign}>%</Text>
           </View>
         </View>
+        
+        <CustomDropdown
+          label="Interest payout frequency"
+          options={payoutFrequencyOptions}
+          value={payoutFrequency}
+          onSelect={setPayoutFrequency}
+          zIndex={4}
+        />
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
           <View style={styles.checkboxRow}>
             <TouchableOpacity style={styles.checkbox} />
             <Text style={styles.label}>Interest capitalization</Text>
           </View>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Interest payout frequency</Text>
-          <TouchableOpacity style={styles.selectButton}>
-            <Text style={styles.selectButtonText}>{payoutFrequency}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
+        <CustomDropdown
+          label="Interest payout frequency"
+          options={payoutFrequencyOptions}
+          value={payoutFrequency}
+          onSelect={setPayoutFrequency}
+          zIndex={4}
+        />
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Deposits</Text>
-          <TouchableOpacity style={styles.selectButton}>
-            <Text style={styles.selectButtonText}>{deposits}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
+        <CustomDropdown
+          label="Deposits"
+          options={withdrawalOptions}
+          value={deposits}
+          onSelect={setDeposits}
+          zIndex={3}
+        />
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 2}]}>
           <Text style={styles.label}>Amount</Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={depositAmount2}
             onChangeText={setDepositAmount2}
@@ -131,17 +179,17 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Partial withdrawals</Text>
-          <TouchableOpacity style={styles.selectButton}>
-            <Text style={styles.selectButtonText}>{withdrawalType}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
+        <CustomDropdown
+          label="Partial withdrawals"
+          options={withdrawalOptions}
+          value={withdrawalType}
+          onSelect={setWithdrawalType}
+          zIndex={1}
+        />
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 4}]}>
           <Text style={styles.label}>Amount</Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={withdrawalAmount}
             onChangeText={setWithdrawalAmount}
@@ -151,9 +199,9 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
           <Text style={styles.label}>Non-reducible balance</Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={nonReducibleBalance}
             onChangeText={setNonReducibleBalance}
@@ -168,10 +216,10 @@ const DepositCalculator = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
-  )
-}
+  );
+};
 
-export default DepositCalculator
+export default DepositCalculator;
 
 const styles = StyleSheet.create({
   container: {
@@ -197,6 +245,23 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 16,
+    position: 'relative',
+    zIndex: 1,
+  },
+  'inputGroup:nth-child(1)': {
+    zIndex: 6,
+  },
+  'inputGroup:nth-child(2)': {
+    zIndex: 5,
+  },
+  'inputGroup:nth-child(3)': {
+    zIndex: 4,
+  },
+  'inputGroup:nth-child(4)': {
+    zIndex: 3,
+  },
+  'inputGroup:nth-child(5)': {
+    zIndex: 2,
   },
   label: {
     color: '#6B7280',
@@ -284,7 +349,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 4,
     padding: 8,
-    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   dropdownItem: {
     padding: 12,
@@ -293,4 +365,4 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-})
+});
