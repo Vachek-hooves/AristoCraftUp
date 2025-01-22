@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Modal,
 } from 'react-native';
 import React, {useState} from 'react';
 import {Dropdown} from 'react-native-element-dropdown';
@@ -15,6 +16,7 @@ import {
   payoutFrequencyOptions,
   withdrawalOptions,
 } from '../../data/DropDown';
+import CalendarPicker from 'react-native-calendar-picker';
 
 const DepositCalculator = () => {
   const [depositAmount, setDepositAmount] = useState('5000');
@@ -28,6 +30,18 @@ const DepositCalculator = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('500');
   const [nonReducibleBalance, setNonReducibleBalance] = useState('60');
   const [interestPercent, setInterestPercent] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
+  const onDateChange = (date) => {
+    setSelectedDate(date);
+    setIsCalendarVisible(false);
+  };
+
+  const formatDate = (date) => {
+    if (!date) return 'Select date';
+    return date.format('DD/MM/YYYY');
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -82,18 +96,26 @@ const DepositCalculator = () => {
             backgroundColor={'#001250' + 90}
           />
         </View>
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, {zIndex: 7}]}>
           <Text style={styles.label}>Date</Text>
-          <TouchableOpacity style={styles.dateButton}>
-            <Image
+          <TouchableOpacity 
+            style={styles.dateButton}
+            onPress={() => setIsCalendarVisible(true)}
+          >
+            <Image 
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text style={styles.dateButtonText}>Select date</Text>
+            <Text style={[
+              styles.dateButtonText, 
+              selectedDate && styles.dateSelectedText
+            ]}>
+              {formatDate(selectedDate)}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 7}]}>
+        <View style={[styles.inputGroup, {zIndex: 6}]}>
           <Text style={styles.label}>Interest rate</Text>
           <View style={styles.rateContainer}>
             <View style={{flex: 1}}>
@@ -128,14 +150,14 @@ const DepositCalculator = () => {
           </View>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 6}]}>
+        <View style={[styles.inputGroup, {zIndex: 5}]}>
           <View style={styles.checkboxRow}>
             <TouchableOpacity style={styles.checkbox} />
             <Text style={styles.label}>Interest capitalization</Text>
           </View>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
+        <View style={[styles.inputGroup, {zIndex: 4}]}>
           <Text style={styles.label}>Interest payout frequency</Text>
           <Dropdown
             style={styles.dropdown}
@@ -155,7 +177,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 4}]}>
+        <View style={[styles.inputGroup, {zIndex: 3}]}>
           <Text style={styles.label}>Deposits</Text>
           <Dropdown
             style={styles.dropdown}
@@ -175,7 +197,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 3}]}>
+        <View style={[styles.inputGroup, {zIndex: 2}]}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={styles.input}
@@ -187,7 +209,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 2}]}>
+        <View style={[styles.inputGroup, {zIndex: 1}]}>
           <Text style={styles.label}>Partial withdrawals</Text>
           <Dropdown
             style={styles.dropdown}
@@ -207,7 +229,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 4}]}>
+        <View style={[styles.inputGroup, {zIndex: 0}]}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={styles.input}
@@ -219,7 +241,7 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 5}]}>
+        <View style={[styles.inputGroup, {zIndex: -1}]}>
           <Text style={styles.label}>Non-reducible balance</Text>
           <TextInput
             style={styles.input}
@@ -231,10 +253,45 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <TouchableOpacity style={[styles.calculateButton, {zIndex: 1}]}>
+        <TouchableOpacity style={[styles.calculateButton, {zIndex: -2}]}>
           <Text style={styles.calculateButtonText}>Calculate</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Calendar Modal */}
+      <Modal
+        visible={isCalendarVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsCalendarVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          onPress={() => setIsCalendarVisible(false)}
+          activeOpacity={1}
+        >
+          <View style={styles.calendarContainer}>
+            <CalendarPicker
+              onDateChange={onDateChange}
+              selectedDayColor="#001250"
+              selectedDayTextColor="#FFFFFF"
+              textStyle={{ color: '#000000' }}
+              todayBackgroundColor="transparent"
+              todayTextStyle={{ color: '#0066FF' }}
+              monthTitleStyle={{ color: '#000000', fontSize: 16, fontWeight: '600' }}
+              yearTitleStyle={{ color: '#000000', fontSize: 16, fontWeight: '600' }}
+              dayLabelsWrapper={{ borderTopWidth: 0, borderBottomWidth: 0 }}
+              customDatesStyles={[
+                {
+                  date: selectedDate,
+                  style: { backgroundColor: '#001250' },
+                  textStyle: { color: '#FFFFFF' },
+                },
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
       <View style={{height: 100}} />
     </ScrollView>
   );
@@ -297,9 +354,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   dateButton: {
-    backgroundColor: '#000D39',
+    backgroundColor: '#001250',
     borderRadius: 12,
-    padding: 16,
+    padding: 8,
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -307,10 +365,27 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 8,
+    tintColor: '#6B7280',
   },
   dateButtonText: {
     color: '#6B7280',
-    fontSize: 16,
+    fontSize: 14,
+  },
+  dateSelectedText: {
+    color: 'white',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    width: '90%',
+    maxWidth: 340,
   },
   rateContainer: {
     flexDirection: 'row',
