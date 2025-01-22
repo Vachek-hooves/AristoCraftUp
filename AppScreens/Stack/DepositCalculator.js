@@ -1,3 +1,4 @@
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,61 +9,94 @@ import {
   ScrollView,
   Modal,
 } from 'react-native';
-import React, {useState} from 'react';
 import {Dropdown} from 'react-native-element-dropdown';
+import CalendarPicker from 'react-native-calendar-picker';
+import {useAppContext} from '../../store/context';
 import {
   termOptions,
   interestRateOptions,
   payoutFrequencyOptions,
   withdrawalOptions,
 } from '../../data/DropDown';
-import CalendarPicker from 'react-native-calendar-picker';
 
 const DepositCalculator = () => {
-  const [depositAmount, setDepositAmount] = useState('');
-  const [termValue, setTermValue] = useState('');
-  const [termPlacement, setTermPlacement] = useState('Months');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [interestRate, setInterestRate] = useState('Fixed');
-  const [interestPercent, setInterestPercent] = useState('');
-  const [isCapitalization, setIsCapitalization] = useState(false);
-  const [payoutFrequency, setPayoutFrequency] = useState('Every week');
-  const [deposits, setDeposits] = useState('One-time');
-  const [depositDate, setDepositDate] = useState(null);
-  const [depositAmount2, setDepositAmount2] = useState('');
-  const [withdrawalType, setWithdrawalType] = useState('One-time');
-  const [withdrawalDate, setWithdrawalDate] = useState(null);
-  const [withdrawalAmount, setWithdrawalAmount] = useState('');
-  const [nonReducibleBalance, setNonReducibleBalance] = useState('');
+  const {calculatorData, updateCalculatorData} = useAppContext();
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [activeCalendar, setActiveCalendar] = useState(null);
-
-  const formatDate = date => {
-    if (!date) return 'Select date';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
 
   const handleOpenCalendar = (type) => {
     setActiveCalendar(type);
     setIsCalendarVisible(true);
   };
 
+  const formatDate = date => {
+    if (!date) return 'Select date';
+    
+    // Handle string date from AsyncStorage
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    try {
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const year = dateObj.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
+
   const handleDateChange = (date) => {
+    if (!date) return;
+    
+    const dateObj = new Date(date);
+    
     switch (activeCalendar) {
       case 'main':
-        setSelectedDate(date);
+        updateCalculatorData({selectedDate: dateObj.toISOString()});
         break;
       case 'deposit':
-        setDepositDate(date);
+        updateCalculatorData({depositDate: dateObj.toISOString()});
         break;
       case 'withdrawal':
-        setWithdrawalDate(date);
+        updateCalculatorData({withdrawalDate: dateObj.toISOString()});
         break;
     }
     setIsCalendarVisible(false);
+  };
+
+  const handleCalculate = async () => {
+    try {
+      // Validate and prepare all data
+      const calculationData = {
+        depositAmount: calculatorData.depositAmount || '0',
+        termPlacement: calculatorData.termPlacement || 'Months',
+        selectedDate: calculatorData.selectedDate,
+        interestRate: calculatorData.interestRate || 'Fixed',
+        interestPercent: calculatorData.interestPercent || '0',
+        isCapitalization: calculatorData.isCapitalization || false,
+        payoutFrequency: calculatorData.payoutFrequency || 'Every week',
+        deposits: calculatorData.deposits || 'One-time',
+        depositDate: calculatorData.depositDate,
+        depositAmount2: calculatorData.depositAmount2 || '0',
+        withdrawalType: calculatorData.withdrawalType || 'One-time',
+        withdrawalDate: calculatorData.withdrawalDate,
+        withdrawalAmount: calculatorData.withdrawalAmount || '0',
+        nonReducibleBalance: calculatorData.nonReducibleBalance || '0'
+      };
+
+      // Save all data
+      await updateCalculatorData(calculationData);
+      
+      console.log('Calculation data saved:', calculationData);
+      
+      // Here you can add navigation to results screen
+      // navigation.navigate('CalculationResults');
+      
+    } catch (error) {
+      console.error('Error saving calculation data:', error);
+      // Handle error (you might want to show an alert to the user)
+    }
   };
 
   return (
@@ -79,8 +113,8 @@ const DepositCalculator = () => {
           {/* <Text style={styles.label}>Deposit amount</Text> */}
           <TextInput
             style={styles.input}
-            value={depositAmount}
-            onChangeText={setDepositAmount}
+            value={calculatorData.depositAmount}
+            onChangeText={(value) => updateCalculatorData({depositAmount: value})}
             keyboardType="numeric"
             placeholder="Deposit amount"
             placeholderTextColor="#6B7280"
@@ -97,8 +131,8 @@ const DepositCalculator = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            value={termPlacement}
-            onChange={item => setTermPlacement(item.value)}
+            value={calculatorData.termPlacement}
+            onChange={item => updateCalculatorData({termPlacement: item.value})}
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -120,12 +154,11 @@ const DepositCalculator = () => {
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text
-              style={[
-                styles.dateButtonText,
-                selectedDate && styles.dateSelectedText,
-              ]}>
-              {formatDate(selectedDate)}
+            <Text style={[
+              styles.dateButtonText,
+              calculatorData.selectedDate && styles.dateSelectedText
+            ]}>
+              {formatDate(calculatorData.selectedDate)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -141,8 +174,8 @@ const DepositCalculator = () => {
               maxHeight={300}
               labelField="label"
               valueField="value"
-              value={interestRate}
-              onChange={item => setInterestRate(item.value)}
+              value={calculatorData.interestRate}
+              onChange={item => updateCalculatorData({interestRate: item.value})}
               containerStyle={styles.dropdownContainer}
               itemContainerStyle={styles.dropdownItemContainer}
               itemTextStyle={styles.dropdownItemText}
@@ -152,11 +185,12 @@ const DepositCalculator = () => {
             <View style={styles.percentInputContainer}>
               <TextInput
                 style={styles.percentInput}
-                value={interestPercent}
-                onChangeText={setInterestPercent}
+                value={calculatorData.interestPercent}
+                onChangeText={(value) => updateCalculatorData({interestPercent: value})}
                 keyboardType="numeric"
                 placeholder="0"
                 placeholderTextColor="#6B7280"
+                maxLength={3}
               />
               <Text style={styles.percentSign}>%</Text>
             </View>
@@ -166,8 +200,8 @@ const DepositCalculator = () => {
         <View style={[styles.inputGroup, {zIndex: 6}]}>
           <TouchableOpacity
             style={styles.checkboxRow}
-            onPress={() => setIsCapitalization(!isCapitalization)}>
-            <View style={[styles.checkbox, isCapitalization && styles.checkboxChecked]} />
+            onPress={() => updateCalculatorData({isCapitalization: !calculatorData.isCapitalization})}>
+            <View style={[styles.checkbox, calculatorData.isCapitalization && styles.checkboxChecked]} />
             <Text style={styles.label}>Interest capitalization</Text>
           </TouchableOpacity>
         </View>
@@ -182,8 +216,8 @@ const DepositCalculator = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            value={payoutFrequency}
-            onChange={item => setPayoutFrequency(item.value)}
+            value={calculatorData.payoutFrequency}
+            onChange={item => updateCalculatorData({payoutFrequency: item.value})}
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -202,8 +236,8 @@ const DepositCalculator = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            value={deposits}
-            onChange={item => setDeposits(item.value)}
+            value={calculatorData.deposits}
+            onChange={item => updateCalculatorData({deposits: item.value})}
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -213,18 +247,35 @@ const DepositCalculator = () => {
         </View>
 
         <View style={[styles.inputGroup, {zIndex: 3}]}>
-          {/* <Text style={styles.label}>Amount</Text> */}
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => handleOpenCalendar('deposit')}
+            activeOpacity={0.7}>
+            <Image
+              source={require('../../assets/images/vector/calendar.png')}
+              style={styles.calendarIcon}
+            />
+            <Text style={[
+              styles.dateButtonText,
+              calculatorData.depositDate && styles.dateSelectedText
+            ]}>
+              {formatDate(calculatorData.depositDate)}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={[styles.inputGroup, {zIndex: 2}]}>
           <TextInput
             style={styles.input}
-            value={depositAmount2}
-            onChangeText={setDepositAmount2}
+            value={calculatorData.depositAmount2}
+            onChangeText={(value) => updateCalculatorData({depositAmount2: value})}
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 2}]}>
+        <View style={[styles.inputGroup, {zIndex: 1}]}>
           <Text style={styles.label}>Partial withdrawals</Text>
           <Dropdown
             style={styles.dropdown}
@@ -234,8 +285,8 @@ const DepositCalculator = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            value={withdrawalType}
-            onChange={item => setWithdrawalType(item.value)}
+            value={calculatorData.withdrawalType}
+            onChange={item => updateCalculatorData({withdrawalType: item.value})}
             containerStyle={styles.dropdownContainer}
             itemContainerStyle={styles.dropdownItemContainer}
             itemTextStyle={styles.dropdownItemText}
@@ -244,59 +295,60 @@ const DepositCalculator = () => {
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 8}]}>
-          {/* <Text style={styles.label}>Date</Text> */}
+        <View style={[styles.inputGroup, {zIndex: 0}]}>
           <TouchableOpacity
             style={[
               styles.dateButton,
               {backgroundColor: '#000D39', paddingVertical: 4, height: 55},
             ]}
-            onPress={() => handleOpenCalendar('main')}
+        
+            onPress={() => handleOpenCalendar('withdrawal')}
+           
             activeOpacity={0.7}>
             <Image
               source={require('../../assets/images/vector/calendar.png')}
               style={styles.calendarIcon}
             />
-            <Text
-              style={[
-                styles.dateButtonText,
-                selectedDate && styles.dateSelectedText,
-              ]}>
-              {formatDate(selectedDate)}
+            <Text style={[
+              styles.dateButtonText,
+              calculatorData.withdrawalDate && styles.dateSelectedText
+            ]}>
+              {formatDate(calculatorData.withdrawalDate)}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: 1}]}>
-          {/* <Text style={styles.label}>Amount</Text> */}
+        <View style={[styles.inputGroup, {zIndex: -1}]}>
           <TextInput
             style={styles.input}
-            value={withdrawalAmount}
-            onChangeText={setWithdrawalAmount}
+            value={calculatorData.withdrawalAmount}
+            onChangeText={(value) => updateCalculatorData({withdrawalAmount: value})}
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
           />
         </View>
 
-        <View style={[styles.inputGroup, {zIndex: -1}]}>
+        <View style={[styles.inputGroup, {zIndex: -2}]}>
           <Text style={styles.label}>Non-reducible balance</Text>
           <TextInput
             style={styles.input}
-            value={nonReducibleBalance}
-            onChangeText={setNonReducibleBalance}
+            value={calculatorData.nonReducibleBalance}
+            onChangeText={(value) => updateCalculatorData({nonReducibleBalance: value})}
             keyboardType="numeric"
             placeholder="Enter amount"
             placeholderTextColor="#6B7280"
           />
         </View>
 
-        <TouchableOpacity style={[styles.calculateButton, {zIndex: -2}]}>
+        <TouchableOpacity 
+          style={[styles.calculateButton, {zIndex: -3}]}
+          onPress={handleCalculate}
+        >
           <Text style={styles.calculateButtonText}>Calculate</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Calendar Modal */}
       <Modal
         visible={isCalendarVisible}
         transparent={true}
@@ -319,36 +371,11 @@ const DepositCalculator = () => {
                   textStyle={{color: '#FFFFFF'}}
                   todayBackgroundColor="transparent"
                   todayTextStyle={{color: '#FFFFFF'}}
-                  monthTitleStyle={{
-                    color: '#FFFFFF',
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}
-                  yearTitleStyle={{
-                    color: '#FFFFFF',
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}
-                  dayLabelsWrapper={{
-                    borderTopWidth: 0,
-                    borderBottomWidth: 0,
-                    backgroundColor: '#001250',
-                  }}
-                  previousComponent={
-                    <Text style={styles.navigationArrow}>{'<'}</Text>
-                  }
-                  nextComponent={
-                    <Text style={styles.navigationArrow}>{'>'}</Text>
-                  }
-                  weekdays={['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']}
-                  weekdaysStyle={styles.weekdayLabel}
-                  customDatesStyles={[
-                    {
-                      date: selectedDate,
-                      style: {backgroundColor: '#0066FF'},
-                      textStyle: {color: '#FFFFFF'},
-                    },
-                  ]}
+                  monthTitleStyle={{color: '#FFFFFF', fontSize: 16, fontWeight: '600'}}
+                  yearTitleStyle={{color: '#FFFFFF', fontSize: 16, fontWeight: '600'}}
+                  dayLabelsWrapper={{borderTopWidth: 0, borderBottomWidth: 0}}
+                  previousComponent={<Text style={styles.navigationArrow}>{'<'}</Text>}
+                  nextComponent={<Text style={styles.navigationArrow}>{'>'}</Text>}
                 />
               </TouchableOpacity>
             </View>
