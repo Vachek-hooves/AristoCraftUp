@@ -137,7 +137,7 @@ const DepositCalculator = () => {
             </View>
             <View style={styles.percentInputContainer}>
               <TextInput
-                style={styles.percentInput}
+                style={styles.input}
                 value={interestPercent}
                 onChangeText={setInterestPercent}
                 keyboardType="numeric"
@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     minWidth: 70,
+    justifyContent: 'center',
   },
   percentInput: {
     color: 'white',
