@@ -45,7 +45,7 @@ const DepositSum = () => {
   const formatCurrency = (value) => {
     return `${value?.toFixed(2) || '0.00'}$`;
   };
-  console.log(calculatorData.totalDeposits)
+  
 
   return (
     <ScrollView style={styles.container}>
