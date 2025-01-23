@@ -169,6 +169,7 @@ const Analytics = () => {
             </View>
           </View>
         </View>
+        <View style={{height: 120}}/>
       </ScrollView>
     </View>
   );

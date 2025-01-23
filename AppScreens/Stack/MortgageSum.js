@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View, SafeAreaView, Dimensions} from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView, Dimensions,ScrollView} from 'react-native';
 import PieChart from 'react-native-pie-chart';
 
 const MortgageSum = ({route}) => {
@@ -22,7 +22,7 @@ const MortgageSum = ({route}) => {
     : '0.00';
 
   return (
-    <SafeAreaView style={styles.container}>
+                <ScrollView style={styles.container}>
       <Text style={styles.title}>Mortgage Calculator</Text>
 
       <View style={styles.chartContainer}>
@@ -78,7 +78,7 @@ const MortgageSum = ({route}) => {
           </Text>
         </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
