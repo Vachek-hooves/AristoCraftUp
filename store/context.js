@@ -23,6 +23,7 @@ export const AppProvider = ({children}) => {
     calculationResult: null,
   });
   const [piggyBanks, setPiggyBanks] = useState([]);
+  const [deductions, setDeductions] = useState([]);
   // console.log(calculatorData);
   console.log(piggyBanks);
 
@@ -55,6 +56,20 @@ export const AppProvider = ({children}) => {
     loadPiggyBanks();
   }, []);
 
+  useEffect(() => {
+    const loadDeductions = async () => {
+      try {
+        const savedDeductions = await AsyncStorage.getItem('deductions');
+        if (savedDeductions) {
+          setDeductions(JSON.parse(savedDeductions));
+        }
+      } catch (error) {
+        console.error('Error loading deductions:', error);
+      }
+    };
+    loadDeductions();
+  }, []);
+
   // Save data to AsyncStorage whenever it changes
   const updateCalculatorData = async newData => {
     try {
@@ -81,19 +96,14 @@ export const AppProvider = ({children}) => {
     }
   };
 
-  const updatePiggyBankAmount = async (id, newAmount) => {
+  const saveDeduction = async (newDeduction) => {
     try {
-      const updatedPiggyBanks = piggyBanks.map(piggy => 
-        piggy.id === id 
-          ? {...piggy, currentAmount: parseFloat(piggy.currentAmount) + parseFloat(newAmount)}
-          : piggy
-      );
-      
-      await AsyncStorage.setItem('piggyBanks', JSON.stringify(updatedPiggyBanks));
-      setPiggyBanks(updatedPiggyBanks);
+      const updatedDeductions = [...deductions, newDeduction];
+      await AsyncStorage.setItem('deductions', JSON.stringify(updatedDeductions));
+      setDeductions(updatedDeductions);
       return true;
     } catch (error) {
-      console.error('Error updating piggy bank amount:', error);
+      console.error('Error saving deduction:', error);
       return false;
     }
   };
@@ -103,7 +113,8 @@ export const AppProvider = ({children}) => {
     updateCalculatorData,
     piggyBanks,
     savePiggyBank,
-    updatePiggyBankAmount,
+    deductions,
+    saveDeduction,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
