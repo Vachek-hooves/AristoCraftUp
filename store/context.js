@@ -26,6 +26,7 @@ export const AppProvider = ({children}) => {
   const [deductions, setDeductions] = useState([]);
   // console.log(calculatorData);
   console.log(piggyBanks);
+  console.log(deductions);
 
   // Load data from AsyncStorage on mount
   useEffect(() => {

@@ -11,8 +11,9 @@ import {
   Modal,
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
-import {AppContext} from '../../store/context';
-import { categories } from '../../data/categories';
+// import {AppContext} from '../../store/context';
+import {categories} from '../../data/categories';
+import {useAppContext} from '../../store/context';
 
 // const categories = [
 //   {
@@ -79,7 +80,8 @@ import { categories } from '../../data/categories';
 
 const DeductionForm = ({navigation, route}) => {
   const {type} = route.params;
-  const {saveDeduction} = useContext(AppContext);
+  //   const {saveDeduction} = useContext(AppContext);
+  const {saveDeduction} = useAppContext();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -179,18 +181,19 @@ const DeductionForm = ({navigation, route}) => {
 
           <Text style={styles.categoriesTitle}>Categories</Text>
           <View style={styles.categoriesGrid}>
-            {categories.map((category) => (
+            {categories.map(category => (
               <TouchableOpacity
                 key={category.id}
                 style={styles.categoryItem}
-                onPress={() => setFormData({...formData, category: category.id})}
-              >
+                onPress={() =>
+                  setFormData({...formData, category: category.id})
+                }>
                 <View
                   style={[
                     styles.categoryIconContainer,
-                    formData.category === category.id && styles.selectedCategoryContainer,
-                  ]}
-                >
+                    formData.category === category.id &&
+                      styles.selectedCategoryContainer,
+                  ]}>
                   <Image source={category.icon} style={styles.categoryIcon} />
                 </View>
                 <Text style={styles.categoryName}>{category.name}</Text>
