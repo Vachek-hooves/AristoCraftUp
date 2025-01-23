@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -36,21 +37,22 @@ const Profile = ({navigation}) => {
   };
 
   const menuItems = [
-    {
-      id: 'website',
-      title: 'Developer Website',
-      onPress: () => {/* Handle website navigation */},
-    },
+    // {
+    //   id: 'website',
+    //   title: 'Developer Website',
+    //   onPress: () => {/* Handle website navigation */},
+    // },
     {
       id: 'privacy',
       title: 'Privacy Policy',
-      onPress: () => {/* Handle privacy policy */},
+      onPress: () => {Linking.openURL('https://www.termsfeed.com/live/b0a0cae5-2223-423f-a7a4-a5997d1ee6eb')},
+      // url: 'https://www.termsfeed.com/live/b0a0cae5-2223-423f-a7a4-a5997d1ee6eb'
     },
-    {
-      id: 'terms',
-      title: 'Terms of Use',
-      onPress: () => {/* Handle terms of use */},
-    },
+    // {
+    //   id: 'terms',
+    //   title: 'Terms of Use',
+    //   onPress: () => {/* Handle terms of use */},
+    // },
   ];
 
   return (
