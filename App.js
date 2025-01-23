@@ -10,6 +10,7 @@ import DepositSum from './AppScreens/Stack/DepositSum';
 import MortgageSum from './AppScreens/Stack/MortgageSum';
 import PiggyBankForm from './AppScreens/Stack/PiggyBankForm';
 import DeductionForm from './AppScreens/Stack/DeductionForm';
+import EditProfile from './AppScreens/Stack/EditProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,6 +42,7 @@ function App() {
           <Stack.Screen name="MortgageSum" component={MortgageSum} />
           <Stack.Screen name="PiggyBankForm" component={PiggyBankForm} />
           <Stack.Screen name="DeductionForm" component={DeductionForm} />
+          <Stack.Screen name="EditProfile" component={EditProfile} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppProvider>
