@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 const IntroScreen = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate('TabNavigation', {
+      navigation.replace('TabNavigation', {
         screen: 'HomeScreen',
       });
     }, 500);

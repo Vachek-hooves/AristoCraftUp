@@ -98,32 +98,31 @@ const HomeScreen = ({navigation}) => {
     return icons[category.toLowerCase()] || icons.other;
   };
 
-  const handleDeleteDeduction = (id) => {
-    Alert.alert(
-      'Delete Item',
-      'Are you sure you want to delete this item?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+  const handleDeleteDeduction = id => {
+    Alert.alert('Delete Item', 'Are you sure you want to delete this item?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const updatedDeductions = deductions.filter(item => item.id !== id);
+            setDeductions(updatedDeductions);
+            // If you're storing in AsyncStorage, update it as well
+            await AsyncStorage.setItem(
+              'deductions',
+              JSON.stringify(updatedDeductions),
+            );
+          } catch (error) {
+            console.error('Error deleting item:', error);
+            Alert.alert('Error', 'Failed to delete item');
+          }
         },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const updatedDeductions = deductions.filter(item => item.id !== id);
-              setDeductions(updatedDeductions);
-              // If you're storing in AsyncStorage, update it as well
-              await AsyncStorage.setItem('deductions', JSON.stringify(updatedDeductions));
-            } catch (error) {
-              console.error('Error deleting item:', error);
-              Alert.alert('Error', 'Failed to delete item');
-            }
-          },
-        },
-      ],
-    );
+      },
+    ]);
   };
 
   return (
@@ -228,7 +227,7 @@ const HomeScreen = ({navigation}) => {
                     {item.type === 'INCOME' ? '+' : '-'}
                     {formatAmount(item.amount)}
                   </Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => handleDeleteDeduction(item.id)}
                     style={styles.deleteButton}>
                     <Image
@@ -243,7 +242,7 @@ const HomeScreen = ({navigation}) => {
             <Text style={styles.emptyText}>There's nothing here yet</Text>
           )}
         </View>
-        <View style={{height:30}}/>
+        <View style={{height: 30}} />
       </ScrollView>
     </View>
   );
@@ -416,7 +415,7 @@ const styles = StyleSheet.create({
   deductionIcon: {
     width: 24,
     height: 24,
-    // tintColor: '#FFFFFF',
+    tintColor: '#FFFFFF',
   },
   deductionInfo: {
     flex: 1,

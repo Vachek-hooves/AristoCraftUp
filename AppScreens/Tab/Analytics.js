@@ -8,6 +8,14 @@ const Analytics = () => {
   const { deductions } = useContext(AppContext);
 
   const getCategoryData = () => {
+    if (!deductions || deductions.length === 0) {
+      return [{
+        value: 100, // Use 100 to show full circle
+        color: '#6B7280', // Gray color
+        name: 'No transactions yet'
+      }];
+    }
+
     const categoryTotals = deductions.reduce((acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = 0;
@@ -17,17 +25,17 @@ const Analytics = () => {
     }, {});
 
     const categoryColors = {
-      health: '#FF3B30',      // Red cross
-      leisure: '#34D399',     // Turquoise wallet
-      home: '#FF9F0A',        // Orange house
-      cafe: '#8B5CF6',        // Purple cup
-      education: '#5856D6',   // Blue graduation cap
-      gift: '#FF6482',        // Pink gift
-      products: '#34C759',    // Green shopping bag
-      sport: '#FF9500',       // Orange sport
-      transport: '#64B5F6',   // Blue transport
-      accounts: '#BF5AF2',    // Purple card
-      other: '#6B7280',       // Gray question mark
+      health: '#FF3B30',      
+      leisure: '#34D399',     
+      home: '#FF9F0A',        
+      cafe: '#8B5CF6',        
+      education: '#5856D6',   
+      gift: '#FF6482',        
+      products: '#34C759',    
+      sport: '#FF9500',       
+      transport: '#64B5F6',   
+      accounts: '#BF5AF2',    
+      other: '#6B7280',       
     };
 
     const series = Object.entries(categoryTotals).map(([category, amount]) => ({
@@ -40,6 +48,12 @@ const Analytics = () => {
   };
 
   const getMonthlyData = (type) => {
+    if (!deductions || deductions.length === 0) {
+      return [
+        { value: 100, color: '#6B7280' } // Use 100 to show full circle in gray
+      ];
+    }
+
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
@@ -62,83 +76,71 @@ const Analytics = () => {
       .reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     return [
-      { value: thisMonthTotal, color: type === 'INCOME' ? '#34C759' : '#FF3B30' },
-      { value: lastMonthTotal, color: type === 'INCOME' ? '#5856D6' : '#FF9F0A' }
+      { value: thisMonthTotal || 1, color: type === 'INCOME' ? '#34C759' : '#FF3B30' },
+      { value: lastMonthTotal || 1, color: type === 'INCOME' ? '#5856D6' : '#FF9F0A' }
     ];
   };
 
-  if (!deductions || deductions.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Image
-          source={require('../../assets/images/vector/noAnalytics.png')}
-          style={styles.emptyImage}
-        />
-        <Text style={styles.emptyText}>No data to analyze yet</Text>
-      </View>
-    );
-  }
-
-  const totalAmount = deductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+  const totalAmount = deductions?.reduce((sum, item) => sum + parseFloat(item.amount), 0) || 0;
   const categoryData = getCategoryData();
   const incomeData = getMonthlyData('INCOME');
   const expensesData = getMonthlyData('EXPENSES');
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} >
-      <Text style={styles.headerTitle}>Analytics</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={styles.headerTitle}>Analytics</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Total amount spent this month</Text>
-        <View style={styles.chartContainer}>
-          <PieChart
-            widthAndHeight={220}
-            series={categoryData}
-            cover={0.65}
-          />
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalAmount}>${totalAmount}</Text>
-          </View>
-        </View>
-        <View style={styles.legendContainer}>
-          {categoryData.map((item, index) => (
-            <View key={index} style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-              <Text style={styles.legendText}>{item.name}</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total amount spent this month</Text>
+          <View style={styles.chartContainer}>
+            <PieChart
+              widthAndHeight={220}
+              series={categoryData}
+              cover={0.65}
+            />
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalAmount}>${totalAmount}</Text>
             </View>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.compareContainer}>
-        <View style={styles.compareCard}>
-          <Text style={styles.compareTitle}>Income</Text>
-          <PieChart
-            widthAndHeight={120}
-            series={incomeData}
-            cover={0.65}
-          />
-          <View style={styles.monthlyData}>
-            <Text style={styles.monthlyText}>Current month - ${incomeData[0].value}</Text>
-            <Text style={styles.monthlyText}>Previous month - ${incomeData[1].value}</Text>
+          </View>
+          <View style={styles.legendContainer}>
+            {categoryData.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                <Text style={styles.legendText}>{item.name}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
-        <View style={styles.compareCard}>
-          <Text style={styles.compareTitle}>Expenses</Text>
-          <PieChart
-            widthAndHeight={120}
-            series={expensesData}
-            cover={0.65}
-          />
-          <View style={styles.monthlyData}>
-            <Text style={styles.monthlyText}>Current month - ${expensesData[0].value}</Text>
-            <Text style={styles.monthlyText}>Previous month - ${expensesData[1].value}</Text>
+        <View style={styles.compareContainer}>
+          <View style={styles.compareCard}>
+            <Text style={styles.compareTitle}>Income</Text>
+            <PieChart
+              widthAndHeight={120}
+              series={incomeData}
+              cover={0.65}
+            />
+            <View style={styles.monthlyData}>
+              <Text style={styles.monthlyText}>Current month - $0</Text>
+              <Text style={styles.monthlyText}>Previous month - $0</Text>
+            </View>
+          </View>
+
+          <View style={styles.compareCard}>
+            <Text style={styles.compareTitle}>Expenses</Text>
+            <PieChart
+              widthAndHeight={120}
+              series={expensesData}
+              cover={0.65}
+            />
+            <View style={styles.monthlyData}>
+              <Text style={styles.monthlyText}>Current month - $0</Text>
+              <Text style={styles.monthlyText}>Previous month - $0</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </View>
   );
 };
