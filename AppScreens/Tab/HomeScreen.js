@@ -8,6 +8,7 @@ import {
   Platform,
   ImageBackground,
   ScrollView,
+  Image,
 } from 'react-native';
 import {AppContext} from '../../store/context';
 
@@ -76,6 +77,24 @@ const HomeScreen = ({navigation}) => {
     (sum, item) => sum + item.amount,
     0,
   );
+
+  const getIconForCategory = category => {
+    const icons = {
+      health: require('../../assets/images/icons/health.png'),
+      leisure: require('../../assets/images/icons/leisure.png'),
+      home: require('../../assets/images/icons/home.png'),
+      cafe: require('../../assets/images/icons/cafe.png'),
+      education: require('../../assets/images/icons/education.png'),
+      gift: require('../../assets/images/icons/gift.png'),
+      products: require('../../assets/images/icons/products.png'),
+      sport: require('../../assets/images/icons/sport.png'),
+      transport: require('../../assets/images/icons/transport.png'),
+      accounts: require('../../assets/images/icons/accounts.png'),
+      other: require('../../assets/images/icons/other.png'),
+      salary: require('../../assets/images/icons/salary.png'), // Add salary icon
+    };
+    return icons[category.toLowerCase()] || icons.other;
+  };
 
   return (
     <View style={styles.container}>
@@ -156,17 +175,31 @@ const HomeScreen = ({navigation}) => {
           {filteredDeductions.length > 0 ? (
             <View style={styles.deductionsList}>
               {filteredDeductions.map(item => (
-                <View key={item.id} style={styles.deductionItem}>
+                <TouchableOpacity key={item.id} style={styles.deductionItem}>
+                  <View style={styles.deductionIconContainer}>
+                    <Image
+                      source={getIconForCategory(item.category)}
+                      style={styles.deductionIcon}
+                    />
+                  </View>
                   <View style={styles.deductionInfo}>
                     <Text style={styles.deductionName}>{item.name}</Text>
                     <Text style={styles.deductionCategory}>
                       {item.category}
                     </Text>
                   </View>
-                  <Text style={styles.deductionAmount}>
+                  <Text
+                    style={[
+                      styles.deductionAmount,
+                      item.type === 'INCOME'
+                        ? styles.incomeText
+                        : styles.expenseText,
+                    ]}>
+                    {item.type === 'INCOME' ? '+' : '-'}
                     {formatAmount(item.amount)}
                   </Text>
-                </View>
+                  <Text style={styles.chevron}>›</Text>
+                </TouchableOpacity>
               ))}
             </View>
           ) : (
@@ -324,22 +357,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 80, // Add padding for the floating button
   },
-  totalAmount: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
   deductionItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: '#001250',
     borderRadius: 12,
     marginBottom: 8,
+  },
+  deductionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  deductionIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#FFFFFF',
   },
   deductionInfo: {
     flex: 1,
@@ -357,7 +396,25 @@ const styles = StyleSheet.create({
   deductionAmount: {
     fontSize: 16,
     fontWeight: '600',
+    marginRight: 8,
+  },
+  incomeText: {
+    color: '#5FFF10', // Green color for income
+  },
+  expenseText: {
+    color: '#F63536', // Red color for expenses
+  },
+  chevron: {
+    fontSize: 20,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginLeft: 4,
+  },
+  totalAmount: {
+    fontSize: 32,
+    fontWeight: '700',
     color: '#FFFFFF',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
