@@ -32,10 +32,36 @@ const PiggyBank = ({navigation}) => {
     return Math.min((current / target) * 100, 100);
   };
 
+  const handleAmountChange = (text) => {
+    // Allow only numbers and decimal point
+    const regex = /^\d*\.?\d*$/;
+    if (text === '' || regex.test(text)) {
+      // Prevent multiple decimal points
+      if (text.split('.').length - 1 <= 1) {
+        // Limit decimal places to 2
+        if (text.includes('.')) {
+          const [, decimal] = text.split('.');
+          if (decimal && decimal.length <= 2) {
+            setAmount(text);
+          }
+        } else {
+          setAmount(text);
+        }
+      }
+    }
+  };
+
   const handleUpdateAmount = async () => {
     if (selectedPiggy && amount) {
-      // Convert amount to number and add to current amount
-      const newAmount = parseFloat(selectedPiggy.currentAmount) + parseFloat(amount);
+      const numAmount = parseFloat(amount);
+      
+      // Validate amount
+      if (isNaN(numAmount) || numAmount <= 0) {
+        Alert.alert('Invalid Amount', 'Please enter a valid positive number');
+        return;
+      }
+
+      const newAmount = parseFloat(selectedPiggy.currentAmount) + numAmount;
       const success = await updatePiggyBankAmount(selectedPiggy.id, newAmount);
       
       if (success) {
@@ -134,9 +160,10 @@ const PiggyBank = ({navigation}) => {
               style={styles.amountInput}
               placeholder="Enter amount"
               placeholderTextColor="#6B7280"
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               value={amount}
-              onChangeText={setAmount}
+              onChangeText={handleAmountChange}
+              maxLength={10} // Prevent extremely large numbers
             />
 
             <View style={styles.modalButtons}>
@@ -155,10 +182,10 @@ const PiggyBank = ({navigation}) => {
                 style={[
                   styles.modalButton, 
                   styles.saveButton,
-                  !amount ? styles.disabledButton : null
+                  (!amount || parseFloat(amount) <= 0) ? styles.disabledButton : null
                 ]}
                 onPress={handleUpdateAmount}
-                disabled={!amount}
+                disabled={!amount || parseFloat(amount) <= 0}
               >
                 <Text style={styles.modalButtonText}>Save</Text>
               </TouchableOpacity>
