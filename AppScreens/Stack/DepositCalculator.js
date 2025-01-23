@@ -393,6 +393,10 @@ const DepositCalculator = ({navigation}) => {
             disabled={!isFormValid}>
             <Text style={styles.calculateButtonText}>Calculate</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
         </View>
 
         <Modal
@@ -449,6 +453,19 @@ const DepositCalculator = ({navigation}) => {
 export default DepositCalculator;
 
 const styles = StyleSheet.create({
+    backButton:{
+      backgroundColor: '#2196F3',
+      borderRadius: 8,
+      padding: 16,
+      alignItems: 'center',
+      marginTop: 16,
+      marginTop:20
+    },
+    backButtonText:{
+        color:'white',
+        fontSize:16,
+        fontWeight:'600'
+    },
   safeArea: {
     flex: 1,
     backgroundColor: '#001250',
