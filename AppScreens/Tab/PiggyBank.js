@@ -9,6 +9,7 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  Alert,
 } from 'react-native';
 import {AppContext} from '../../store/context';
 
@@ -33,11 +34,16 @@ const PiggyBank = ({navigation}) => {
 
   const handleUpdateAmount = async () => {
     if (selectedPiggy && amount) {
-      const success = await updatePiggyBankAmount(selectedPiggy.id, amount);
+      // Convert amount to number and add to current amount
+      const newAmount = parseFloat(selectedPiggy.currentAmount) + parseFloat(amount);
+      const success = await updatePiggyBankAmount(selectedPiggy.id, newAmount);
+      
       if (success) {
         setAmount('');
         setSelectedPiggy(null);
         setShowUpdateModal(false);
+      } else {
+        Alert.alert('Error', 'Failed to update amount');
       }
     }
   };
@@ -146,8 +152,13 @@ const PiggyBank = ({navigation}) => {
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.modalButton, styles.saveButton]}
+                style={[
+                  styles.modalButton, 
+                  styles.saveButton,
+                  !amount ? styles.disabledButton : null
+                ]}
                 onPress={handleUpdateAmount}
+                disabled={!amount}
               >
                 <Text style={styles.modalButtonText}>Save</Text>
               </TouchableOpacity>
@@ -304,6 +315,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
 
