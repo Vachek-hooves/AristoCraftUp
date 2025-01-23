@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,19 +7,72 @@ import {
   TouchableOpacity,
   Platform,
   ImageBackground,
+  ScrollView,
 } from 'react-native';
+import {AppContext} from '../../store/context';
 
 const HomeScreen = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('INCOME'); // 'INCOME' or 'EXPENSES'
   const [dateFilter, setDateFilter] = useState('DAY'); // 'DAY', 'WEEK', 'MONTH', 'YEAR'
+  const {deductions} = useContext(AppContext);
 
-  const formatDate = () => {
-    const date = new Date();
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
     });
   };
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
+  const filterDeductions = () => {
+    const today = new Date();
+    let filteredData = deductions.filter(item => item.type === activeTab);
+
+    switch (dateFilter) {
+      case 'DAY':
+        filteredData = filteredData.filter(item => {
+          const itemDate = new Date(item.date);
+          return itemDate.toDateString() === today.toDateString();
+        });
+        break;
+      case 'WEEK':
+        const weekAgo = new Date(today.setDate(today.getDate() - 7));
+        filteredData = filteredData.filter(item => {
+          const itemDate = new Date(item.date);
+          return itemDate >= weekAgo;
+        });
+        break;
+      case 'MONTH':
+        filteredData = filteredData.filter(item => {
+          const itemDate = new Date(item.date);
+          return (
+            itemDate.getMonth() === today.getMonth() &&
+            itemDate.getFullYear() === today.getFullYear()
+          );
+        });
+        break;
+      case 'YEAR':
+        filteredData = filteredData.filter(item => {
+          const itemDate = new Date(item.date);
+          return itemDate.getFullYear() === today.getFullYear();
+        });
+        break;
+    }
+
+    return filteredData;
+  };
+
+  const filteredDeductions = filterDeductions();
+  const totalAmount = filteredDeductions.reduce(
+    (sum, item) => sum + item.amount,
+    0,
+  );
 
   return (
     <View style={styles.container}>
@@ -57,44 +110,63 @@ const HomeScreen = ({navigation}) => {
         </View>
       </View>
 
-      <ImageBackground
-        source={require('../../assets/images/header/frame.png')}
-        style={styles.contentContainer}
-        imageStyle={styles.backgroundImage}>
-        <View style={styles.dateFilterContainer}>
-          {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
-            <TouchableOpacity
-              key={filter}
-              style={[
-                styles.filterButton,
-                dateFilter === filter && styles.activeFilterButton,
-              ]}
-              onPress={() => setDateFilter(filter)}>
-              <Text
+      <ScrollView style={styles.scrollView}>
+        <ImageBackground
+          source={require('../../assets/images/header/frame.png')}
+          style={styles.contentContainer}
+          imageStyle={styles.backgroundImage}>
+          <View style={styles.dateFilterContainer}>
+            {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
+              <TouchableOpacity
+                key={filter}
                 style={[
-                  styles.filterText,
-                  dateFilter === filter && styles.activeFilterText,
-                ]}>
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+                  styles.filterButton,
+                  dateFilter === filter && styles.activeFilterButton,
+                ]}
+                onPress={() => setDateFilter(filter)}>
+                <Text
+                  style={[
+                    styles.filterText,
+                    dateFilter === filter && styles.activeFilterText,
+                  ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <Text style={styles.dateText}>Today, {formatDate()}</Text>
+          <Text style={styles.dateText}>Today, {formatDate(new Date())}</Text>
+          <Text style={styles.totalAmount}>{formatAmount(totalAmount)}</Text>
+        </ImageBackground>
 
-        <Text style={styles.emptyText}>There's nothing here yet</Text>
+        {filteredDeductions.length > 0 ? (
+          <View style={styles.deductionsList}>
+            {filteredDeductions.map(item => (
+              <View key={item.id} style={styles.deductionItem}>
+                <View style={styles.deductionInfo}>
+                  <Text style={styles.deductionName}>{item.name}</Text>
+                  <Text style={styles.deductionCategory}>{item.category}</Text>
+                </View>
+                <Text style={styles.deductionAmount}>
+                  {formatAmount(item.amount)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.emptyText}>There's nothing here yet</Text>
+        )}
+      </ScrollView>
 
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() =>
-            navigation.navigate('DeductionForm', {
-              type: activeTab // Passing 'INCOME' or 'EXPENSES' as type
-            })
-          }>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </ImageBackground>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() =>
+          navigation.navigate('DeductionForm', {
+            type: activeTab
+          })
+        }>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -185,20 +257,18 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: '#FFFFFF',
   },
+  scrollView: {
+    flex: 1,
+  },
   contentContainer: {
-    // flex: 1,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    overflow: 'hidden',
     borderRadius: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    height: 240,
-   
+    padding: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    height: 200, // Fixed height for the content container
   },
   backgroundImage: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
   },
   dateText: {
     color: '#FFFFFF',
@@ -211,7 +281,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 40,
   },
   addButton: {
     position: 'absolute',
@@ -237,6 +307,45 @@ const styles = StyleSheet.create({
     color: '#2196F3',
     fontWeight: '400',
     lineHeight: 32,
+  },
+  deductionsList: {
+    paddingHorizontal: 16,
+    paddingBottom: 80, // Add padding for the floating button
+  },
+  totalAmount: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  deductionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#001250',
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  deductionInfo: {
+    flex: 1,
+  },
+  deductionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  deductionCategory: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  deductionAmount: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
 
