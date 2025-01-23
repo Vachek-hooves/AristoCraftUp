@@ -81,11 +81,29 @@ export const AppProvider = ({children}) => {
     }
   };
 
+  const updatePiggyBankAmount = async (id, newAmount) => {
+    try {
+      const updatedPiggyBanks = piggyBanks.map(piggy => 
+        piggy.id === id 
+          ? {...piggy, currentAmount: parseFloat(piggy.currentAmount) + parseFloat(newAmount)}
+          : piggy
+      );
+      
+      await AsyncStorage.setItem('piggyBanks', JSON.stringify(updatedPiggyBanks));
+      setPiggyBanks(updatedPiggyBanks);
+      return true;
+    } catch (error) {
+      console.error('Error updating piggy bank amount:', error);
+      return false;
+    }
+  };
+
   const value = {
     calculatorData,
     updateCalculatorData,
     piggyBanks,
     savePiggyBank,
+    updatePiggyBankAmount,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

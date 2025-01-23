@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,11 +7,16 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Modal,
+  TextInput,
 } from 'react-native';
 import {AppContext} from '../../store/context';
 
 const PiggyBank = ({navigation}) => {
-  const {piggyBanks} = useContext(AppContext);
+  const {piggyBanks, updatePiggyBankAmount} = useContext(AppContext);
+  const [selectedPiggy, setSelectedPiggy] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -24,6 +29,22 @@ const PiggyBank = ({navigation}) => {
 
   const calculateProgress = (current, target) => {
     return Math.min((current / target) * 100, 100);
+  };
+
+  const handleUpdateAmount = async () => {
+    if (selectedPiggy && amount) {
+      const success = await updatePiggyBankAmount(selectedPiggy.id, amount);
+      if (success) {
+        setAmount('');
+        setSelectedPiggy(null);
+        setShowUpdateModal(false);
+      }
+    }
+  };
+
+  const openUpdateModal = (piggy) => {
+    setSelectedPiggy(piggy);
+    setShowUpdateModal(true);
   };
 
   return (
@@ -47,7 +68,11 @@ const PiggyBank = ({navigation}) => {
         {piggyBanks.length > 0 && (
           <View style={styles.cardsContainer}>
             {piggyBanks.map((piggy) => (
-              <View key={piggy.id} style={styles.card}>
+              <TouchableOpacity 
+                key={piggy.id} 
+                style={styles.card}
+                onPress={() => openUpdateModal(piggy)}
+              >
                 <View style={styles.cardHeader}>
                   <Text style={styles.goalName}>{piggy.goalName}</Text>
                   <Text style={styles.targetDate}>
@@ -81,11 +106,54 @@ const PiggyBank = ({navigation}) => {
                 <Text style={styles.description} numberOfLines={2}>
                   {piggy.description}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={showUpdateModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Add to {selectedPiggy?.goalName}
+            </Text>
+            
+            <TextInput
+              style={styles.amountInput}
+              placeholder="Enter amount"
+              placeholderTextColor="#6B7280"
+              keyboardType="numeric"
+              value={amount}
+              onChangeText={setAmount}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => {
+                  setShowUpdateModal(false);
+                  setSelectedPiggy(null);
+                  setAmount('');
+                }}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleUpdateAmount}
+              >
+                <Text style={styles.modalButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -185,6 +253,56 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 16,
+  },
+  modalContent: {
+    backgroundColor: '#001250',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  amountInput: {
+    backgroundColor: '#000D39',
+    borderRadius: 8,
+    padding: 16,
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#6B7280',
+  },
+  saveButton: {
+    backgroundColor: '#2196F3',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
