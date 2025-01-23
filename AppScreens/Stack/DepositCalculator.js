@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,21 +11,31 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
 import CalendarPicker from 'react-native-calendar-picker';
 import {useAppContext} from '../../store/context';
+import {validateDepositForm} from '../../utils/depositValidation';
+
 import {
   termOptions,
   interestRateOptions,
   payoutFrequencyOptions,
   withdrawalOptions,
 } from '../../data/DropDown';
+import CustomDropdown from '../../components/DepositeComponents/CustomDropdown';
 
 const DepositCalculator = ({navigation}) => {
   const {calculatorData, updateCalculatorData} = useAppContext();
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [activeCalendar, setActiveCalendar] = useState(null);
   const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  // Validate form whenever calculatorData changes
+  useEffect(() => {
+    const {isValid, errors: validationErrors} = validateDepositForm(calculatorData);
+    setErrors(validationErrors);
+    setIsFormValid(isValid);
+  }, [calculatorData]);
 
   const handleOpenCalendar = type => {
     setActiveCalendar(type);
@@ -68,58 +78,14 @@ const DepositCalculator = ({navigation}) => {
     setIsCalendarVisible(false);
   };
 
-  const validateFields = () => {
-    const newErrors = {};
-
-    // Required fields validation
-    if (!calculatorData.depositAmount) {
-      newErrors.depositAmount = 'Initial deposit amount is required';
-    }
-    if (!calculatorData.termValue) {
-      newErrors.termValue = 'Term value is required';
-    }
-    if (!calculatorData.termPlacement) {
-      newErrors.termPlacement = 'Term placement is required';
-    }
-    if (!calculatorData.selectedDate) {
-      newErrors.selectedDate = 'Start date is required';
-    }
-    if (!calculatorData.interestPercent) {
-      newErrors.interestPercent = 'Interest rate is required';
-    }
-    if (!calculatorData.payoutFrequency) {
-      newErrors.payoutFrequency = 'Payout frequency is required';
-    }
-
-    // Additional deposits validation
-    if (calculatorData.deposits !== 'One-time') {
-      if (!calculatorData.depositAmount2) {
-        newErrors.depositAmount2 = 'Additional deposit amount is required';
-      }
-      if (!calculatorData.depositDate) {
-        newErrors.depositDate = 'Additional deposit date is required';
-      }
-    }
-
-    // Withdrawals validation
-    if (calculatorData.withdrawalType !== 'One-time') {
-      if (!calculatorData.withdrawalAmount) {
-        newErrors.withdrawalAmount = 'Withdrawal amount is required';
-      }
-      if (!calculatorData.withdrawalDate) {
-        newErrors.withdrawalDate = 'Withdrawal date is required';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleCalculate = async () => {
     try {
-      if (!validateFields()) {
-        const firstError = Object.values(errors)[0];
+      const {isValid, errors: validationErrors} = validateDepositForm(calculatorData);
+      
+      if (!isValid) {
+        const firstError = Object.values(validationErrors)[0];
         Alert.alert('Validation Error', firstError);
+        setErrors(validationErrors);
         return;
       }
 
@@ -145,13 +111,11 @@ const DepositCalculator = ({navigation}) => {
       const result = calculateDeposit(calculationData);
       console.log('Calculation result:', result);
 
-      // Save results
       await updateCalculatorData({
         ...calculatorData,
         calculationResult: result,
       });
 
-      // Navigate to results
       navigation.navigate('DepositSum');
     } catch (error) {
       console.error('Calculation error:', error);
@@ -203,24 +167,14 @@ const DepositCalculator = ({navigation}) => {
           </View>
 
           <View style={[styles.inputGroup, {zIndex: 9}]}>
-            {/* <Text style={styles.label}>Term of placement</Text> */}
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
+            <CustomDropdown
               data={termOptions}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
               value={calculatorData.termPlacement}
               onChange={item =>
                 updateCalculatorData({termPlacement: item.value})
               }
-              containerStyle={styles.dropdownContainer}
-              itemContainerStyle={styles.dropdownItemContainer}
-              itemTextStyle={styles.dropdownItemText}
-              activeColor="#000824"
-              backgroundColor={'#001250' + 90}
+              placeholder="Select term placement"
+              zIndex={9}
             />
           </View>
 
@@ -250,23 +204,15 @@ const DepositCalculator = ({navigation}) => {
           <View style={[styles.inputGroup, {zIndex: 7}]}>
             <Text style={styles.label}>Interest rate</Text>
             <View style={styles.rateContainer}>
-              <Dropdown
-                style={[styles.dropdown, {flex: 1}]}
-                placeholderStyle={styles.dropdownPlaceholder}
-                selectedTextStyle={styles.dropdownSelectedText}
+              <CustomDropdown
                 data={interestRateOptions}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
                 value={calculatorData.interestRate}
                 onChange={item =>
                   updateCalculatorData({interestRate: item.value})
                 }
-                containerStyle={styles.dropdownContainer}
-                itemContainerStyle={styles.dropdownItemContainer}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor="#000824"
-                backgroundColor={'#001250' + 90}
+                placeholder="Select rate type"
+                containerStyle={{flex: 1}}
+                zIndex={7}
               />
               <View style={styles.percentInputContainer}>
                 <TextInput
@@ -305,43 +251,25 @@ const DepositCalculator = ({navigation}) => {
 
           <View style={[styles.inputGroup, {zIndex: 5}]}>
             <Text style={styles.label}>Interest payout frequency</Text>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
+            <CustomDropdown
               data={payoutFrequencyOptions}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
               value={calculatorData.payoutFrequency}
               onChange={item =>
                 updateCalculatorData({payoutFrequency: item.value})
               }
-              containerStyle={styles.dropdownContainer}
-              itemContainerStyle={styles.dropdownItemContainer}
-              itemTextStyle={styles.dropdownItemText}
-              activeColor="#000824"
-              backgroundColor={'#001250' + 90}
+              placeholder="Select payout frequency"
+              zIndex={5}
             />
           </View>
 
           <View style={[styles.inputGroup, {zIndex: 4}]}>
             <Text style={styles.label}>Deposits</Text>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
+            <CustomDropdown
               data={withdrawalOptions}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
               value={calculatorData.deposits}
               onChange={item => updateCalculatorData({deposits: item.value})}
-              containerStyle={styles.dropdownContainer}
-              itemContainerStyle={styles.dropdownItemContainer}
-              itemTextStyle={styles.dropdownItemText}
-              activeColor="#000824"
-              backgroundColor={'#001250' + 90}
+              placeholder="Select deposit type"
+              zIndex={4}
             />
           </View>
 
@@ -382,23 +310,14 @@ const DepositCalculator = ({navigation}) => {
 
           <View style={[styles.inputGroup, {zIndex: 1}]}>
             <Text style={styles.label}>Partial withdrawals</Text>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
+            <CustomDropdown
               data={withdrawalOptions}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
               value={calculatorData.withdrawalType}
               onChange={item =>
                 updateCalculatorData({withdrawalType: item.value})
               }
-              containerStyle={styles.dropdownContainer}
-              itemContainerStyle={styles.dropdownItemContainer}
-              itemTextStyle={styles.dropdownItemText}
-              activeColor="#000824"
-              backgroundColor={'#001250' + 90}
+              placeholder="Select withdrawal type"
+              zIndex={1}
             />
           </View>
 
@@ -452,8 +371,12 @@ const DepositCalculator = ({navigation}) => {
           </View>
 
           <TouchableOpacity
-            style={[styles.calculateButton, {zIndex: -3}]}
-            onPress={handleCalculate}>
+            style={[
+              styles.calculateButton,
+              !isFormValid && styles.calculateButtonDisabled,
+            ]}
+            onPress={handleCalculate}
+            disabled={!isFormValid}>
             <Text style={styles.calculateButtonText}>Calculate</Text>
           </TouchableOpacity>
         </View>
@@ -646,42 +569,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#0066FF',
   },
   calculateButton: {
-    backgroundColor: '#666666',
-    borderRadius: 12,
+    backgroundColor: '#2196F3',
+    borderRadius: 8,
     padding: 16,
-    marginTop: 24,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  calculateButtonDisabled: {
+    backgroundColor: '#6B7280',
+    opacity: 0.5,
   },
   calculateButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
-    textAlign: 'center',
     fontWeight: '600',
   },
-  // dropdownMenu: {
-  //   position: 'absolute',
-  //   top: '100%',
-  //   left: 0,
-  //   right: 0,
-  //   backgroundColor: '#000D39',
-  //   borderRadius: 12,
-  //   marginTop: 4,
-  //   padding: 8,
-  //   elevation: 5,
-  //   shadowColor: '#000',
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  // },
-  // dropdownItem: {
-  //   padding: 12,
-  // },
-  // dropdownText: {
-  //   color: 'white',
-  //   fontSize: 16,
-  // },
   dropdown: {
     backgroundColor: '#000D39',
     borderRadius: 12,
@@ -730,5 +632,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#001250',
     borderTopWidth: 0,
     borderBottomWidth: 0,
+  },
+  inputError: {
+    borderColor: '#FF4444',
+    borderWidth: 1,
   },
 });
