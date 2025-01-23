@@ -20,9 +20,11 @@ export const AppProvider = ({children}) => {
     withdrawalDate: null,
     withdrawalAmount: '',
     nonReducibleBalance: '',
-    calculationResult: null
+    calculationResult: null,
   });
-  console.log(calculatorData);
+  const [piggyBanks, setPiggyBanks] = useState([]);
+  // console.log(calculatorData);
+  console.log(piggyBanks);
 
   // Load data from AsyncStorage on mount
   useEffect(() => {
@@ -39,6 +41,20 @@ export const AppProvider = ({children}) => {
     loadCalculatorData();
   }, []);
 
+  useEffect(() => {
+    const loadPiggyBanks = async () => {
+      try {
+        const savedPiggyBanks = await AsyncStorage.getItem('piggyBanks');
+        if (savedPiggyBanks) {
+          setPiggyBanks(JSON.parse(savedPiggyBanks));
+        }
+      } catch (error) {
+        console.error('Error loading piggy banks:', error);
+      }
+    };
+    loadPiggyBanks();
+  }, []);
+
   // Save data to AsyncStorage whenever it changes
   const updateCalculatorData = async newData => {
     try {
@@ -50,9 +66,26 @@ export const AppProvider = ({children}) => {
     }
   };
 
+  const savePiggyBank = async newPiggyBank => {
+    try {
+      const updatedPiggyBanks = [...piggyBanks, newPiggyBank];
+      await AsyncStorage.setItem(
+        'piggyBanks',
+        JSON.stringify(updatedPiggyBanks),
+      );
+      setPiggyBanks(updatedPiggyBanks);
+      return true;
+    } catch (error) {
+      console.error('Error saving piggy bank:', error);
+      return false;
+    }
+  };
+
   const value = {
     calculatorData,
     updateCalculatorData,
+    piggyBanks,
+    savePiggyBank,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

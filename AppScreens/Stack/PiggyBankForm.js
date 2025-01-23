@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,10 +8,13 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  ScrollView,
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
+import {useAppContext} from '../../store/context';
 
 const PiggyBankForm = ({navigation}) => {
+  const {savePiggyBank} = useAppContext();
   const [formData, setFormData] = useState({
     goalName: '',
     targetAmount: '',
@@ -19,11 +22,36 @@ const PiggyBankForm = ({navigation}) => {
     description: '',
   });
   const [showCalendar, setShowCalendar] = useState(false);
-  console.log(formData);
+
+  // Validate form
+  const isFormValid = () => {
+    return (
+      formData.goalName.trim() !== '' &&
+      formData.targetAmount.trim() !== '' &&
+      formData.targetDate !== null &&
+      formData.description.trim() !== ''
+    );
+  };
 
   const handleDateSelect = date => {
     setFormData({...formData, targetDate: date});
     setShowCalendar(false);
+  };
+
+  const handleSave = async () => {
+    if (!isFormValid()) return;
+
+    const newPiggyBank = {
+      id: Date.now().toString(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      currentAmount: 0,
+    };
+
+    const success = await savePiggyBank(newPiggyBank);
+    if (success) {
+      navigation.goBack();
+    }
   };
 
   // Format date for display
@@ -44,12 +72,10 @@ const PiggyBankForm = ({navigation}) => {
           <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Piggy bank</Text>
-        <TouchableOpacity onPress={() => {}}>
-          <Text style={styles.doneButton}>Done</Text>
-        </TouchableOpacity>
+        <View style={{width: 40}} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <Image
           source={require('../../assets/images/vector/piggybank.png')}
           style={styles.piggyImage}
@@ -97,7 +123,13 @@ const PiggyBankForm = ({navigation}) => {
             onChangeText={text => setFormData({...formData, description: text})}
           />
         </View>
-      </View>
+
+        {isFormValid() && (
+          <TouchableOpacity style={styles.doneButton} onPress={handleSave}>
+            <Text style={styles.doneButtonText}>Done</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
 
       <Modal visible={showCalendar} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
@@ -120,7 +152,6 @@ const PiggyBankForm = ({navigation}) => {
                 fontSize: 16,
                 fontWeight: '600',
               }}
-              
             />
             <TouchableOpacity
               style={styles.closeButton}
@@ -147,10 +178,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButton: {
-    color: '#2196F3',
-    fontSize: 16,
-  },
-  doneButton: {
     color: '#2196F3',
     fontSize: 16,
   },
@@ -221,6 +248,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  doneButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 8,
+    padding: 16,
+    marginTop: 20,
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  doneButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 
