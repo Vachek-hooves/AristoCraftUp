@@ -206,6 +206,7 @@ const HomeScreen = ({navigation}) => {
             <Text style={styles.emptyText}>There's nothing here yet</Text>
           )}
         </View>
+        <View style={{height:30}}/>
       </ScrollView>
     </View>
   );
