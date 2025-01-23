@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTab: {
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
   },
   tabText: {
     fontSize: 16,
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   activeTabText: {
-    color: '#2196F3',
+    color: '#FFFFFF',
   },
   dateFilterContainer: {
     flexDirection: 'row',
