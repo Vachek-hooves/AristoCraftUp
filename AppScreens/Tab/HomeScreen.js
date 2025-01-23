@@ -16,14 +16,14 @@ const HomeScreen = ({navigation}) => {
   const [dateFilter, setDateFilter] = useState('DAY'); // 'DAY', 'WEEK', 'MONTH', 'YEAR'
   const {deductions} = useContext(AppContext);
 
-  const formatDate = (date) => {
+  const formatDate = date => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
     });
   };
 
-  const formatAmount = (amount) => {
+  const formatAmount = amount => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -32,7 +32,9 @@ const HomeScreen = ({navigation}) => {
 
   const filterDeductions = () => {
     const today = new Date();
-    let filteredData = deductions.filter(item => item.type === activeTab);
+    let filteredData = deductions.filter(
+      item => item.type.toUpperCase() === activeTab,
+    );
 
     switch (dateFilter) {
       case 'DAY':
@@ -42,10 +44,11 @@ const HomeScreen = ({navigation}) => {
         });
         break;
       case 'WEEK':
-        const weekAgo = new Date(today.setDate(today.getDate() - 7));
+        const weekAgo = new Date();
+        weekAgo.setDate(today.getDate() - 7);
         filteredData = filteredData.filter(item => {
           const itemDate = new Date(item.date);
-          return itemDate >= weekAgo;
+          return itemDate >= weekAgo && itemDate <= today;
         });
         break;
       case 'MONTH':
@@ -111,62 +114,66 @@ const HomeScreen = ({navigation}) => {
       </View>
 
       <ScrollView style={styles.scrollView}>
-        <ImageBackground
-          source={require('../../assets/images/header/frame.png')}
-          style={styles.contentContainer}
-          imageStyle={styles.backgroundImage}>
-          <View style={styles.dateFilterContainer}>
-            {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
-              <TouchableOpacity
-                key={filter}
-                style={[
-                  styles.filterButton,
-                  dateFilter === filter && styles.activeFilterButton,
-                ]}
-                onPress={() => setDateFilter(filter)}>
-                <Text
+        <View style={styles.contentWrapper}>
+          <ImageBackground
+            source={require('../../assets/images/header/frame.png')}
+            style={styles.contentContainer}
+            imageStyle={styles.backgroundImage}>
+            <View style={styles.dateFilterContainer}>
+              {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
+                <TouchableOpacity
+                  key={filter}
                   style={[
-                    styles.filterText,
-                    dateFilter === filter && styles.activeFilterText,
-                  ]}>
-                  {filter}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                    styles.filterButton,
+                    dateFilter === filter && styles.activeFilterButton,
+                  ]}
+                  onPress={() => setDateFilter(filter)}>
+                  <Text
+                    style={[
+                      styles.filterText,
+                      dateFilter === filter && styles.activeFilterText,
+                    ]}>
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <Text style={styles.dateText}>Today, {formatDate(new Date())}</Text>
-          <Text style={styles.totalAmount}>{formatAmount(totalAmount)}</Text>
-        </ImageBackground>
+            <Text style={styles.dateText}>Today, {formatDate(new Date())}</Text>
+            <Text style={styles.totalAmount}>{formatAmount(totalAmount)}</Text>
 
-        {filteredDeductions.length > 0 ? (
-          <View style={styles.deductionsList}>
-            {filteredDeductions.map(item => (
-              <View key={item.id} style={styles.deductionItem}>
-                <View style={styles.deductionInfo}>
-                  <Text style={styles.deductionName}>{item.name}</Text>
-                  <Text style={styles.deductionCategory}>{item.category}</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() =>
+                navigation.navigate('DeductionForm', {
+                  type: activeTab,
+                })
+              }>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          </ImageBackground>
+
+          {filteredDeductions.length > 0 ? (
+            <View style={styles.deductionsList}>
+              {filteredDeductions.map(item => (
+                <View key={item.id} style={styles.deductionItem}>
+                  <View style={styles.deductionInfo}>
+                    <Text style={styles.deductionName}>{item.name}</Text>
+                    <Text style={styles.deductionCategory}>
+                      {item.category}
+                    </Text>
+                  </View>
+                  <Text style={styles.deductionAmount}>
+                    {formatAmount(item.amount)}
+                  </Text>
                 </View>
-                <Text style={styles.deductionAmount}>
-                  {formatAmount(item.amount)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <Text style={styles.emptyText}>There's nothing here yet</Text>
-        )}
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.emptyText}>There's nothing here yet</Text>
+          )}
+        </View>
       </ScrollView>
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() =>
-          navigation.navigate('DeductionForm', {
-            type: activeTab
-          })
-        }>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -260,12 +267,16 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  contentWrapper: {
+    position: 'relative',
+  },
   contentContainer: {
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 16,
     marginBottom: 16,
-    height: 200, // Fixed height for the content container
+    height: 200,
+    position: 'relative',
   },
   backgroundImage: {
     borderRadius: 20,
@@ -286,7 +297,7 @@ const styles = StyleSheet.create({
   addButton: {
     position: 'absolute',
     right: 20,
-    bottom: 20,
+    // bottom: -28,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -301,6 +312,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+    bottom: 10,
   },
   addButtonText: {
     fontSize: 32,
