@@ -9,6 +9,7 @@ import {
   Image,
   Modal,
   ScrollView,
+  Alert,
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import {useAppContext} from '../../store/context';
@@ -23,14 +24,45 @@ const PiggyBankForm = ({navigation}) => {
   });
   const [showCalendar, setShowCalendar] = useState(false);
 
+  const handleAmountChange = (text) => {
+    // Allow only numbers and decimal point
+    const regex = /^\d*\.?\d*$/;
+    if (text === '' || regex.test(text)) {
+      // Prevent multiple decimal points
+      if (text.split('.').length - 1 <= 1) {
+        // Limit decimal places to 2
+        if (text.includes('.')) {
+          const [, decimal] = text.split('.');
+          if (decimal && decimal.length <= 2) {
+            setFormData({...formData, targetAmount: text});
+          }
+        } else {
+          setFormData({...formData, targetAmount: text});
+        }
+      }
+    }
+  };
+
   // Validate form
   const isFormValid = () => {
-    return (
-      formData.goalName.trim() !== '' &&
-      formData.targetAmount.trim() !== '' &&
-      formData.targetDate !== null &&
-      formData.description.trim() !== ''
-    );
+    if (!formData.goalName.trim()) {
+      return false;
+    }
+    
+    const amount = parseFloat(formData.targetAmount);
+    if (isNaN(amount) || amount <= 0) {
+      return false;
+    }
+    
+    if (!formData.targetDate) {
+      return false;
+    }
+    
+    if (!formData.description.trim()) {
+      return false;
+    }
+    
+    return true;
   };
 
   const handleDateSelect = date => {
@@ -39,11 +71,31 @@ const PiggyBankForm = ({navigation}) => {
   };
 
   const handleSave = async () => {
-    if (!isFormValid()) return;
+    if (!formData.goalName.trim()) {
+      Alert.alert('Error', 'Please enter a goal name');
+      return;
+    }
+
+    const amount = parseFloat(formData.targetAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Error', 'Please enter a valid target amount');
+      return;
+    }
+
+    if (!formData.targetDate) {
+      Alert.alert('Error', 'Please select a target date');
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      Alert.alert('Error', 'Please enter a description');
+      return;
+    }
 
     const newPiggyBank = {
       id: Date.now().toString(),
       ...formData,
+      targetAmount: parseFloat(formData.targetAmount),
       createdAt: new Date().toISOString(),
       currentAmount: 0,
     };
@@ -51,6 +103,8 @@ const PiggyBankForm = ({navigation}) => {
     const success = await savePiggyBank(newPiggyBank);
     if (success) {
       navigation.goBack();
+    } else {
+      Alert.alert('Error', 'Failed to save piggy bank');
     }
   };
 
@@ -95,11 +149,10 @@ const PiggyBankForm = ({navigation}) => {
             style={styles.input}
             placeholder="Target Amount"
             placeholderTextColor="#6B7280"
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             value={formData.targetAmount}
-            onChangeText={text =>
-              setFormData({...formData, targetAmount: text})
-            }
+            onChangeText={handleAmountChange}
+            maxLength={10}
           />
 
           <TouchableOpacity
