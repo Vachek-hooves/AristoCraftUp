@@ -7,6 +7,7 @@ import CalculatorDetails from './AppScreens/Stack/CalculatorDetails';
 import MortgageCalculator from './AppScreens/Stack/MortgageCalculator';
 import DepositCalculator from './AppScreens/Stack/DepositCalculator';
 import DepositSum from './AppScreens/Stack/DepositSum';
+import MortgageSum from './AppScreens/Stack/MortgageSum';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ function App() {
             component={DepositCalculator}
           />
           <Stack.Screen name="DepositSum" component={DepositSum} />
+          <Stack.Screen name="MortgageSum" component={MortgageSum} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppProvider>
