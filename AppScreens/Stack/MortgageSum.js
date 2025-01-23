@@ -14,8 +14,12 @@ const MortgageSum = ({route}) => {
   const series = [loanPercentage, initialPaymentPercentage].filter(value => value > 0);
   const sliceColor = ['#2196F3', '#4CAF50'].slice(0, series.length);
 
-  // Format monthly payment
-  const monthlyPayment = parseFloat(calculationResult.monthlyPayment).toFixed(2);
+  // Format monthly payment - handle potential undefined or null values
+  const monthlyPayment = calculationResult.monthlyPayment 
+    ? (typeof calculationResult.monthlyPayment === 'object' 
+        ? calculationResult.monthlyPayment.initial 
+        : calculationResult.monthlyPayment).toFixed(2)
+    : '0.00';
 
   return (
     <SafeAreaView style={styles.container}>
