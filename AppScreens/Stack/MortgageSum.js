@@ -12,14 +12,17 @@ const MortgageSum = ({route}) => {
 
   // Prepare pie chart data
   const series = [loanPercentage, initialPaymentPercentage].filter(value => value > 0);
-  const sliceColor = ['#2196F3', '#5FFF10'].slice(0, series.length);
+  const sliceColor = ['#2196F3', '#4CAF50'].slice(0, series.length);
+
+  // Format monthly payment
+  const monthlyPayment = parseFloat(calculationResult.monthlyPayment).toFixed(2);
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Mortgage Calculator</Text>
 
       <View style={styles.chartContainer}>
-        <View style={{marginBottom: 20}}>
+        <View style={styles.chartWrapper}>
           <PieChart
             widthAndHeight={widthAndHeight}
             series={[
@@ -29,19 +32,22 @@ const MortgageSum = ({route}) => {
             coverRadius={0.8}
             coverFill={'#001250'}
           />
+          {/* Percentage Labels */}
+          <View style={[styles.percentageLabel, styles.loanPercentage]}>
+            <Text style={styles.percentageText}>{loanPercentage}%</Text>
+          </View>
+          <View style={[styles.percentageLabel, styles.initialPaymentPercentage]}>
+            <Text style={styles.percentageText}>{initialPaymentPercentage}%</Text>
+          </View>
         </View>
         <View style={styles.legendContainer}>
           <View style={styles.legendItem}>
             <View style={[styles.legendColor, {backgroundColor: '#2196F3'}]} />
-            <Text style={styles.legendText}>
-              Principal debt ({loanPercentage}%)
-            </Text>
+            <Text style={styles.legendText}>Principal debt</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendColor, {backgroundColor: '#5FFF10'}]} />
-            <Text style={styles.legendText}>
-              Initial payment ({initialPaymentPercentage}%)
-            </Text>
+            <View style={[styles.legendColor, {backgroundColor: '#4CAF50'}]} />
+            <Text style={styles.legendText}>Initial payment</Text>
           </View>
         </View>
       </View>
@@ -50,9 +56,7 @@ const MortgageSum = ({route}) => {
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Monthly Payment</Text>
           <Text style={styles.resultValue}>
-            {typeof calculationResult.monthlyPayment === 'object'
-              ? `${calculationResult.monthlyPayment.initial.toFixed(2)}$ - ${calculationResult.monthlyPayment.final.toFixed(2)}$`
-              : `${calculationResult.monthlyPayment.toFixed(2)}$`}
+            {monthlyPayment}$
           </Text>
         </View>
 
@@ -93,6 +97,28 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     alignItems: 'center',
+  },
+  chartWrapper: {
+    position: 'relative',
+    marginBottom: 20,
+  },
+  percentageLabel: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loanPercentage: {
+    left: '35%',
+    top: '40%',
+  },
+  initialPaymentPercentage: {
+    right: '15%',
+    top: '20%',
+  },
+  percentageText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   legendContainer: {
     marginTop: 20,
