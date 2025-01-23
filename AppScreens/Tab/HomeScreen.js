@@ -88,9 +88,9 @@ const HomeScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.addButton}
           onPress={() =>
-            navigation.navigate(
-              activeTab === 'INCOME' ? 'IncomeForm' : 'ExpenseForm',
-            )
+            navigation.navigate('DeductionForm', {
+              type: activeTab // Passing 'INCOME' or 'EXPENSES' as type
+            })
           }>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
