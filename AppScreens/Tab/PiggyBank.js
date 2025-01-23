@@ -92,7 +92,8 @@ const PiggyBank = ({navigation}) => {
           />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate('PiggyBankForm')}>
+            // onPress={() => navigation.navigate('PiggyBankForm')}
+            >
             <Text style={styles.addButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
