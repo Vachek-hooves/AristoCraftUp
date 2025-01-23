@@ -151,7 +151,7 @@ const DeductionForm = ({navigation, route}) => {
 
           <TextInput
             style={styles.input}
-            placeholder="Amount expense"
+            placeholder="Amount"
             placeholderTextColor="#6B7280"
             keyboardType="numeric"
             value={formData.amount}

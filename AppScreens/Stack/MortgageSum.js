@@ -1,5 +1,12 @@
 import React from 'react';
-import {StyleSheet, Text, View, SafeAreaView, Dimensions,ScrollView} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import PieChart from 'react-native-pie-chart';
 
 const MortgageSum = ({route}) => {
@@ -7,22 +14,35 @@ const MortgageSum = ({route}) => {
   const widthAndHeight = 180;
 
   // Calculate percentages for pie chart
-  const initialPaymentPercentage = Math.max(1, Math.round((calculationResult.initialPaymentAmount / calculationResult.totalPayment) * 100));
-  const loanPercentage = Math.max(1, Math.round(100 - initialPaymentPercentage));
+  const initialPaymentPercentage = Math.max(
+    1,
+    Math.round(
+      (calculationResult.initialPaymentAmount /
+        calculationResult.totalPayment) *
+        100,
+    ),
+  );
+  const loanPercentage = Math.max(
+    1,
+    Math.round(100 - initialPaymentPercentage),
+  );
 
   // Prepare pie chart data
-  const series = [loanPercentage, initialPaymentPercentage].filter(value => value > 0);
+  const series = [loanPercentage, initialPaymentPercentage].filter(
+    value => value > 0,
+  );
   const sliceColor = ['#2196F3', '#4CAF50'].slice(0, series.length);
 
   // Format monthly payment - handle potential undefined or null values
-  const monthlyPayment = calculationResult.monthlyPayment 
-    ? (typeof calculationResult.monthlyPayment === 'object' 
-        ? calculationResult.monthlyPayment.initial 
-        : calculationResult.monthlyPayment).toFixed(2)
+  const monthlyPayment = calculationResult.monthlyPayment
+    ? (typeof calculationResult.monthlyPayment === 'object'
+        ? calculationResult.monthlyPayment.initial
+        : calculationResult.monthlyPayment
+      ).toFixed(2)
     : '0.00';
 
   return (
-                <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Mortgage Calculator</Text>
 
       <View style={styles.chartContainer}>
@@ -30,8 +50,10 @@ const MortgageSum = ({route}) => {
           <PieChart
             widthAndHeight={widthAndHeight}
             series={[
-              { value: series[0], color: sliceColor[0] },
-              ...(series.length > 1 ? [{ value: series[1], color: sliceColor[1] }] : [])
+              {value: series[0], color: sliceColor[0]},
+              ...(series.length > 1
+                ? [{value: series[1], color: sliceColor[1]}]
+                : []),
             ]}
             coverRadius={0.8}
             coverFill={'#001250'}
@@ -40,8 +62,11 @@ const MortgageSum = ({route}) => {
           <View style={[styles.percentageLabel, styles.loanPercentage]}>
             <Text style={styles.percentageText}>{loanPercentage}%</Text>
           </View>
-          <View style={[styles.percentageLabel, styles.initialPaymentPercentage]}>
-            <Text style={styles.percentageText}>{initialPaymentPercentage}%</Text>
+          <View
+            style={[styles.percentageLabel, styles.initialPaymentPercentage]}>
+            <Text style={styles.percentageText}>
+              {initialPaymentPercentage}%
+            </Text>
           </View>
         </View>
         <View style={styles.legendContainer}>
@@ -59,9 +84,7 @@ const MortgageSum = ({route}) => {
       <View style={styles.resultsContainer}>
         <View style={styles.resultRow}>
           <Text style={styles.resultLabel}>Monthly Payment</Text>
-          <Text style={styles.resultValue}>
-            {monthlyPayment}$
-          </Text>
+          <Text style={styles.resultValue}>{monthlyPayment}$</Text>
         </View>
 
         <View style={styles.resultRow}>
@@ -87,6 +110,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000824',
     padding: 16,
+    paddingTop: 40,
   },
   title: {
     fontSize: 24,

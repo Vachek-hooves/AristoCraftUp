@@ -130,7 +130,7 @@ const HomeScreen = ({navigation}) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Home</Text>
         <TouchableOpacity>
-          <Text style={styles.historyButton}>History</Text>
+          {/* <Text style={styles.historyButton}>History</Text> */}
         </TouchableOpacity>
       </View>
 
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   deductionIcon: {
     width: 24,
     height: 24,
-    tintColor: '#FFFFFF',
+    // tintColor: '#FFFFFF',
   },
   deductionInfo: {
     flex: 1,
