@@ -1,7 +1,10 @@
 import {createContext, useState, useEffect, useContext} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const AppContext = createContext({});
+export const AppContext = createContext({
+  deductions: [],
+  setDeductions: () => {},
+});
 
 export const AppProvider = ({children}) => {
   const [calculatorData, setCalculatorData] = useState({
@@ -116,6 +119,7 @@ export const AppProvider = ({children}) => {
     savePiggyBank,
     deductions,
     saveDeduction,
+    setDeductions,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

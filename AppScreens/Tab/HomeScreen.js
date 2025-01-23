@@ -9,13 +9,15 @@ import {
   ImageBackground,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
 import {AppContext} from '../../store/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('INCOME'); // 'INCOME' or 'EXPENSES'
   const [dateFilter, setDateFilter] = useState('DAY'); // 'DAY', 'WEEK', 'MONTH', 'YEAR'
-  const {deductions} = useContext(AppContext);
+  const {deductions, setDeductions} = useContext(AppContext);
 
   const formatDate = date => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -94,6 +96,34 @@ const HomeScreen = ({navigation}) => {
       salary: require('../../assets/images/icons/salary.png'), // Add salary icon
     };
     return icons[category.toLowerCase()] || icons.other;
+  };
+
+  const handleDeleteDeduction = (id) => {
+    Alert.alert(
+      'Delete Item',
+      'Are you sure you want to delete this item?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const updatedDeductions = deductions.filter(item => item.id !== id);
+              setDeductions(updatedDeductions);
+              // If you're storing in AsyncStorage, update it as well
+              await AsyncStorage.setItem('deductions', JSON.stringify(updatedDeductions));
+            } catch (error) {
+              console.error('Error deleting item:', error);
+              Alert.alert('Error', 'Failed to delete item');
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -198,7 +228,14 @@ const HomeScreen = ({navigation}) => {
                     {item.type === 'INCOME' ? '+' : '-'}
                     {formatAmount(item.amount)}
                   </Text>
-                  <Text style={styles.chevron}>›</Text>
+                  <TouchableOpacity 
+                    onPress={() => handleDeleteDeduction(item.id)}
+                    style={styles.deleteButton}>
+                    <Image
+                      source={require('../../assets/images/icons/delete.png')}
+                      style={styles.deleteIcon}
+                    />
+                  </TouchableOpacity>
                 </TouchableOpacity>
               ))}
             </View>
@@ -379,7 +416,7 @@ const styles = StyleSheet.create({
   deductionIcon: {
     width: 24,
     height: 24,
-    tintColor: '#FFFFFF',
+    // tintColor: '#FFFFFF',
   },
   deductionInfo: {
     flex: 1,
@@ -416,6 +453,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     marginTop: 20,
+  },
+  deleteButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  deleteIcon: {
+    width: 20,
+    height: 20,
+    tintColor: '#FF3B30', // Red color for delete icon
   },
 });
 

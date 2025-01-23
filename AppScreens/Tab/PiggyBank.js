@@ -110,6 +110,7 @@ const PiggyBank = ({navigation}) => {
             ))}
           </View>
         )}
+        <View style={{height:100}}/>
       </ScrollView>
 
       <Modal
