@@ -1,9 +1,9 @@
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Image,ScrollView} from 'react-native';
 import React from 'react';
 
 const Calculator = ({navigation}) => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Calculator</Text>
 
       <View style={styles.content}>
@@ -25,7 +25,8 @@ const Calculator = ({navigation}) => {
           <Text style={styles.mortgageText}>Mortgage Calculator</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      <View style={{height: 20}}/>
+    </ScrollView>
   );
 };
 

@@ -10,13 +10,24 @@ const Analytics = () => {
   const getCategoryData = () => {
     if (!deductions || deductions.length === 0) {
       return [{
-        value: 100, // Use 100 to show full circle
-        color: '#6B7280', // Gray color
+        value: 100,
+        color: '#6B7280',
         name: 'No transactions yet'
       }];
     }
 
-    const categoryTotals = deductions.reduce((acc, item) => {
+    // Filter only EXPENSES
+    const expensesOnly = deductions.filter(item => item.type === 'EXPENSES');
+    
+    if (expensesOnly.length === 0) {
+      return [{
+        value: 100,
+        color: '#6B7280',
+        name: 'No expenses yet'
+      }];
+    }
+
+    const categoryTotals = expensesOnly.reduce((acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = 0;
       }
@@ -50,7 +61,7 @@ const Analytics = () => {
   const getMonthlyData = (type) => {
     if (!deductions || deductions.length === 0) {
       return [
-        { value: 100, color: '#6B7280' } // Use 100 to show full circle in gray
+        { value: 100, color: '#6B7280' }
       ];
     }
 
@@ -75,13 +86,23 @@ const Analytics = () => {
       })
       .reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
+    if (thisMonthTotal === 0 && lastMonthTotal === 0) {
+      return [{ value: 100, color: '#6B7280' }];
+    }
+
     return [
-      { value: thisMonthTotal || 1, color: type === 'INCOME' ? '#34C759' : '#FF3B30' },
-      { value: lastMonthTotal || 1, color: type === 'INCOME' ? '#5856D6' : '#FF9F0A' }
+      { value: thisMonthTotal || 0.1, color: type === 'INCOME' ? '#34C759' : '#FF3B30' },
+      { value: lastMonthTotal || 0.1, color: type === 'INCOME' ? '#5856D6' : '#FF9F0A' }
     ];
   };
 
-  const totalAmount = deductions?.reduce((sum, item) => sum + parseFloat(item.amount), 0) || 0;
+  // Calculate total expenses only
+  const totalExpenses = deductions
+    ? deductions
+        .filter(item => item.type === 'EXPENSES')
+        .reduce((sum, item) => sum + parseFloat(item.amount), 0)
+    : 0;
+
   const categoryData = getCategoryData();
   const incomeData = getMonthlyData('INCOME');
   const expensesData = getMonthlyData('EXPENSES');
@@ -100,7 +121,7 @@ const Analytics = () => {
               cover={0.65}
             />
             <View style={styles.totalContainer}>
-              <Text style={styles.totalAmount}>${totalAmount}</Text>
+              <Text style={styles.totalAmount}>${totalExpenses}</Text>
             </View>
           </View>
           <View style={styles.legendContainer}>
@@ -122,8 +143,12 @@ const Analytics = () => {
               cover={0.65}
             />
             <View style={styles.monthlyData}>
-              <Text style={styles.monthlyText}>Current month - $0</Text>
-              <Text style={styles.monthlyText}>Previous month - $0</Text>
+              <Text style={styles.monthlyText}>
+                Current month - ${incomeData[0]?.value === 100 ? 0 : incomeData[0]?.value || 0}
+              </Text>
+              <Text style={styles.monthlyText}>
+                Previous month - ${incomeData[1]?.value || 0}
+              </Text>
             </View>
           </View>
 
@@ -135,8 +160,12 @@ const Analytics = () => {
               cover={0.65}
             />
             <View style={styles.monthlyData}>
-              <Text style={styles.monthlyText}>Current month - $0</Text>
-              <Text style={styles.monthlyText}>Previous month - $0</Text>
+              <Text style={styles.monthlyText}>
+                Current month - ${expensesData[0]?.value === 100 ? 0 : expensesData[0]?.value || 0}
+              </Text>
+              <Text style={styles.monthlyText}>
+                Previous month - ${expensesData[1]?.value || 0}
+              </Text>
             </View>
           </View>
         </View>
