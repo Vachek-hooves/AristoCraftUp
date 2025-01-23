@@ -15,6 +15,7 @@ import {loanTermData} from '../../data/DropDown';
 import {validateMortgageForm} from '../../utils/mortgageValidation';
 import TabSelector from '../../components/MortgageComponents/TabSelector';
 import RadioSelector from '../../components/MortgageComponents/RadioSelector';
+import {calculateMortgage} from '../../utils/MortgageCalc';
 
 const MortgageCalculator = ({navigation}) => {
   const [errors, setErrors] = useState({});
@@ -46,17 +47,16 @@ const MortgageCalculator = ({navigation}) => {
       return;
     }
 
-    // Process the form data
-    const calculationData = {
-      ...formData,
-      propertyValue: parseFloat(formData.propertyValue),
-      initialPayment: parseFloat(formData.initialPayment),
-      loanTerm: parseFloat(formData.loanTerm),
-      interestRate: parseFloat(formData.interestRate),
-    };
-
-    console.log('Calculation data:', calculationData);
-    // Here add navigation to results or further processing
+    try {
+      const result = calculateMortgage(formData);
+      console.log('Calculation result:', result);
+      
+      // Navigate to results screen with calculation data
+      navigation.navigate('MortgageSum', { calculationResult: result });
+    } catch (error) {
+      console.error('Calculation error:', error);
+      Alert.alert('Error', 'Failed to calculate mortgage. Please check your inputs.');
+    }
   };
 
   const handleTabChange = tab => {
