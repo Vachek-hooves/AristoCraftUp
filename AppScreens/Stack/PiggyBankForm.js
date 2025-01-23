@@ -19,11 +19,22 @@ const PiggyBankForm = ({navigation}) => {
     description: '',
   });
   const [showCalendar, setShowCalendar] = useState(false);
+  console.log(formData);
 
   const handleDateSelect = date => {
-    const dateObj = new Date(date);
-    setFormData({...formData, targetDate: dateObj.toISOString()});
+    setFormData({...formData, targetDate: date});
     setShowCalendar(false);
+  };
+
+  // Format date for display
+  const formatDate = date => {
+    if (!date) return 'Target Date';
+    const dateObj = new Date(date);
+    return dateObj.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -49,7 +60,7 @@ const PiggyBankForm = ({navigation}) => {
           <TextInput
             style={styles.input}
             placeholder="Goal Name"
-            placeholderTextColor="#FFF"
+            placeholderTextColor="#6B7280"
             value={formData.goalName}
             onChangeText={text => setFormData({...formData, goalName: text})}
           />
@@ -57,7 +68,7 @@ const PiggyBankForm = ({navigation}) => {
           <TextInput
             style={styles.input}
             placeholder="Target Amount"
-            placeholderTextColor="#FFF"
+            placeholderTextColor="#6B7280"
             keyboardType="numeric"
             value={formData.targetAmount}
             onChangeText={text =>
@@ -68,17 +79,19 @@ const PiggyBankForm = ({navigation}) => {
           <TouchableOpacity
             style={styles.dateInput}
             onPress={() => setShowCalendar(true)}>
-            <Text style={styles.dateText}>
-              {formData.targetDate
-                ? formData.targetDate.format('MMMM DD, YYYY')
-                : 'Target Date'}
+            <Text
+              style={[
+                styles.dateText,
+                formData.targetDate && styles.activeText,
+              ]}>
+              {formatDate(formData.targetDate)}
             </Text>
           </TouchableOpacity>
 
           <TextInput
             style={[styles.input, styles.descriptionInput]}
             placeholder="Description"
-            placeholderTextColor="#FFF"
+            placeholderTextColor="#6B7280"
             multiline
             value={formData.description}
             onChangeText={text => setFormData({...formData, description: text})}
@@ -91,12 +104,23 @@ const PiggyBankForm = ({navigation}) => {
           <View style={styles.calendarContainer}>
             <CalendarPicker
               onDateChange={handleDateSelect}
-            //   minDate={new Date()}
+              minDate={new Date()}
               selectedDayColor="#2196F3"
               selectedDayTextColor="#FFFFFF"
               textStyle={{color: '#FFFFFF'}}
-              todayBackgroundColor="transparent"
-              todayTextStyle={{color: '#2196F3'}}
+              todayBackgroundColor="green"
+              todayTextStyle={{color: 'yellow'}}
+              monthTitleStyle={{
+                color: '#FFFFFF',
+                fontSize: 16,
+                fontWeight: '600',
+              }}
+              yearTitleStyle={{
+                color: '#FFFFFF',
+                fontSize: 16,
+                fontWeight: '600',
+              }}
+              
             />
             <TouchableOpacity
               style={styles.closeButton}
@@ -148,7 +172,7 @@ const styles = StyleSheet.create({
   form: {
     gap: 16,
     backgroundColor: '#001250',
-    padding: 10,
+    padding: 16,
     borderRadius: 12,
   },
   input: {
@@ -164,8 +188,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   dateText: {
-    color: '#FFF',
+    color: '#6B7280',
     fontSize: 16,
+  },
+  activeText: {
+    color: '#FFFFFF',
   },
   descriptionInput: {
     height: 100,
@@ -181,7 +208,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#001250',
     borderRadius: 16,
     padding: 16,
-    width: '90%',
+    width: '100%',
   },
   closeButton: {
     backgroundColor: '#2196F3',
