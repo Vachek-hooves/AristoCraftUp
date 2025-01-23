@@ -6,7 +6,7 @@ const IntroScreen = ({navigation}) => {
       navigation.replace('TabNavigation', {
         screen: 'HomeScreen',
       });
-    }, 500);
+    }, 1500);
   }, []);
   return (
     <ImageBackground

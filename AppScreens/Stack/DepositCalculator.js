@@ -89,6 +89,20 @@ const DepositCalculator = ({navigation}) => {
         return;
       }
 
+      // Check if withdrawal amount is greater than deposit amount
+      const depositAmount = parseFloat(calculatorData.depositAmount);
+      const withdrawalAmount = parseFloat(calculatorData.withdrawalAmount);
+      const nonReducibleBalance = parseFloat(calculatorData.nonReducibleBalance) || 0;
+
+      if (withdrawalAmount > depositAmount - nonReducibleBalance) {
+        Alert.alert(
+          'Invalid Withdrawal Amount',
+          'Withdrawal amount cannot be greater than deposit amount minus non-reducible balance.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
       // Prepare calculation data
       const calculationData = {
         depositAmount: calculatorData.depositAmount,
