@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import {AppContext} from '../../store/context';
+import MainLayout from '../../components/layout/MainLayout';
 
 const PiggyBank = ({navigation}) => {
   const {piggyBanks, updatePiggyBankAmount} = useContext(AppContext);
@@ -19,7 +20,7 @@ const PiggyBank = ({navigation}) => {
   const [amount, setAmount] = useState('');
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'long',
@@ -32,7 +33,7 @@ const PiggyBank = ({navigation}) => {
     return Math.min((current / target) * 100, 100);
   };
 
-  const handleAmountChange = (text) => {
+  const handleAmountChange = text => {
     // Allow only numbers and decimal point
     const regex = /^\d*\.?\d*$/;
     if (text === '' || regex.test(text)) {
@@ -54,7 +55,7 @@ const PiggyBank = ({navigation}) => {
   const handleUpdateAmount = async () => {
     if (selectedPiggy && amount) {
       const numAmount = parseFloat(amount);
-      
+
       // Validate amount
       if (isNaN(numAmount) || numAmount <= 0) {
         Alert.alert('Invalid Amount', 'Please enter a valid positive number');
@@ -63,7 +64,7 @@ const PiggyBank = ({navigation}) => {
 
       const newAmount = parseFloat(selectedPiggy.currentAmount) + numAmount;
       const success = await updatePiggyBankAmount(selectedPiggy.id, newAmount);
-      
+
       if (success) {
         setAmount('');
         setSelectedPiggy(null);
@@ -74,134 +75,133 @@ const PiggyBank = ({navigation}) => {
     }
   };
 
-  const openUpdateModal = (piggy) => {
+  const openUpdateModal = piggy => {
     setSelectedPiggy(piggy);
     setShowUpdateModal(true);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Piggy bank</Text>
+    <MainLayout>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.title}>Piggy bank</Text>
 
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.contentContainer}>
-          <Image
-            source={require('../../assets/images/vector/piggybank.png')}
-            style={styles.piggyImage}
-            resizeMode="contain"
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => navigation.navigate('PiggyBankForm')}
-            >
-            <Text style={styles.addButtonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-
-        {piggyBanks.length > 0 && (
-          <View style={styles.cardsContainer}>
-            {piggyBanks.map((piggy) => (
-              <TouchableOpacity 
-                key={piggy.id} 
-                style={styles.card}
-                onPress={() => openUpdateModal(piggy)}
-              >
-                <View style={styles.cardHeader}>
-                  <Text style={styles.goalName}>{piggy.goalName}</Text>
-                  <Text style={styles.targetDate}>
-                    {formatDate(piggy.targetDate)}
-                  </Text>
-                </View>
-
-                <View style={styles.amountContainer}>
-                  <Text style={styles.currentAmount}>
-                    ${piggy.currentAmount.toFixed(2)}
-                  </Text>
-                  <Text style={styles.targetAmount}>
-                    of ${parseFloat(piggy.targetAmount).toFixed(2)}
-                  </Text>
-                </View>
-
-                <View style={styles.progressBarContainer}>
-                  <View 
-                    style={[
-                      styles.progressBar, 
-                      {
-                        width: `${calculateProgress(
-                          piggy.currentAmount,
-                          piggy.targetAmount
-                        )}%`
-                      }
-                    ]} 
-                  />
-                </View>
-
-                <Text style={styles.description} numberOfLines={2}>
-                  {piggy.description}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        <View style={{height:100}}/>
-      </ScrollView>
-
-      <Modal
-        visible={showUpdateModal}
-        transparent={true}
-        animationType="slide"
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              Add to {selectedPiggy?.goalName}
-            </Text>
-            
-            <TextInput
-              style={styles.amountInput}
-              placeholder="Enter amount"
-              placeholderTextColor="#6B7280"
-              keyboardType="decimal-pad"
-              value={amount}
-              onChangeText={handleAmountChange}
-              maxLength={10} // Prevent extremely large numbers
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.contentContainer}>
+            <Image
+              source={require('../../assets/images/vector/piggybank.png')}
+              style={styles.piggyImage}
+              resizeMode="contain"
             />
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate('PiggyBankForm')}>
+              <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowUpdateModal(false);
-                  setSelectedPiggy(null);
-                  setAmount('');
-                }}
-              >
-                <Text style={styles.modalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[
-                  styles.modalButton, 
-                  styles.saveButton,
-                  (!amount || parseFloat(amount) <= 0) ? styles.disabledButton : null
-                ]}
-                onPress={handleUpdateAmount}
-                disabled={!amount || parseFloat(amount) <= 0}
-              >
-                <Text style={styles.modalButtonText}>Save</Text>
-              </TouchableOpacity>
+          {piggyBanks.length > 0 && (
+            <View style={styles.cardsContainer}>
+              {piggyBanks.map(piggy => (
+                <TouchableOpacity
+                  key={piggy.id}
+                  style={styles.card}
+                  onPress={() => openUpdateModal(piggy)}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.goalName}>{piggy.goalName}</Text>
+                    <Text style={styles.targetDate}>
+                      {formatDate(piggy.targetDate)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.amountContainer}>
+                    <Text style={styles.currentAmount}>
+                      ${piggy.currentAmount.toFixed(2)}
+                    </Text>
+                    <Text style={styles.targetAmount}>
+                      of ${parseFloat(piggy.targetAmount).toFixed(2)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBar,
+                        {
+                          width: `${calculateProgress(
+                            piggy.currentAmount,
+                            piggy.targetAmount,
+                          )}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+
+                  <Text style={styles.description} numberOfLines={2}>
+                    {piggy.description}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          <View style={{height: 100}} />
+        </ScrollView>
+
+        <Modal
+          visible={showUpdateModal}
+          transparent={true}
+          animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                Add to {selectedPiggy?.goalName}
+              </Text>
+
+              <TextInput
+                style={styles.amountInput}
+                placeholder="Enter amount"
+                placeholderTextColor="#6B7280"
+                keyboardType="decimal-pad"
+                value={amount}
+                onChangeText={handleAmountChange}
+                maxLength={10} // Prevent extremely large numbers
+              />
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => {
+                    setShowUpdateModal(false);
+                    setSelectedPiggy(null);
+                    setAmount('');
+                  }}>
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.modalButton,
+                    styles.saveButton,
+                    !amount || parseFloat(amount) <= 0
+                      ? styles.disabledButton
+                      : null,
+                  ]}
+                  onPress={handleUpdateAmount}
+                  disabled={!amount || parseFloat(amount) <= 0}>
+                  <Text style={styles.modalButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+      </SafeAreaView>
+    </MainLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    // backgroundColor: '#000824',
   },
   scrollView: {
     flex: 1,

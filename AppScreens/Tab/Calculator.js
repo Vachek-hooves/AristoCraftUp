@@ -1,32 +1,41 @@
-import {StyleSheet, Text, View, TouchableOpacity, Image,ScrollView} from 'react-native';
-import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
+import MainLayout from '../../components/layout/MainLayout';
 
 const Calculator = ({navigation}) => {
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Calculator</Text>
+    <MainLayout>
+      <ScrollView style={styles.container}>
+        <Text style={styles.title}>Calculator</Text>
 
-      <View style={styles.content}>
-        <Image
-          source={require('../../assets/images/vector/calculator.png')} // Make sure to add calculator icon to assets
-          style={styles.calculatorIcon}
-        />
-        <Text style={styles.emptyText}>There's nothing{'\n'} here yet</Text>
+        <View style={styles.content}>
+          <Image
+            source={require('../../assets/images/vector/calculator.png')} // Make sure to add calculator icon to assets
+            style={styles.calculatorIcon}
+          />
+          <Text style={styles.emptyText}>There's nothing{'\n'} here yet</Text>
 
-        <TouchableOpacity
-          style={styles.depositButton}
-          onPress={() => navigation.navigate('DepositCalculator')}>
-          <Text style={styles.depositText}>Deposit Calculator</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.depositButton}
+            onPress={() => navigation.navigate('DepositCalculator')}>
+            <Text style={styles.depositText}>Deposit Calculator</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.mortgageButton}
-          onPress={() => navigation.navigate('MortgageCalculator')}>
-          <Text style={styles.mortgageText}>Mortgage Calculator</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{height: 20}}/>
-    </ScrollView>
+          <TouchableOpacity
+            style={styles.mortgageButton}
+            onPress={() => navigation.navigate('MortgageCalculator')}>
+            <Text style={styles.mortgageText}>Mortgage Calculator</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{height: 20}} />
+      </ScrollView>
+    </MainLayout>
   );
 };
 
@@ -35,7 +44,7 @@ export default Calculator;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    // backgroundColor: '#000824',
     padding: 16,
   },
   title: {

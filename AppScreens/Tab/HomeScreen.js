@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {AppContext} from '../../store/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MainLayout from '../../components/layout/MainLayout';
 
 const HomeScreen = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('INCOME'); // 'INCOME' or 'EXPENSES'
@@ -126,132 +127,138 @@ const HomeScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Home</Text>
-        <TouchableOpacity>
-          {/* <Text style={styles.historyButton}>History</Text> */}
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.tabWrapper}>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'INCOME' && styles.activeTab]}
-            onPress={() => setActiveTab('INCOME')}>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'INCOME' && styles.activeTabText,
-              ]}>
-              INCOME
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'EXPENSES' && styles.activeTab]}
-            onPress={() => setActiveTab('EXPENSES')}>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'EXPENSES' && styles.activeTabText,
-              ]}>
-              EXPENSES
-            </Text>
+    <MainLayout>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Home</Text>
+          <TouchableOpacity>
+            {/* <Text style={styles.historyButton}>History</Text> */}
           </TouchableOpacity>
         </View>
-      </View>
 
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.contentWrapper}>
-          <ImageBackground
-            source={require('../../assets/images/header/frame.png')}
-            style={styles.contentContainer}
-            imageStyle={styles.backgroundImage}>
-            <View style={styles.dateFilterContainer}>
-              {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
-                <TouchableOpacity
-                  key={filter}
-                  style={[
-                    styles.filterButton,
-                    dateFilter === filter && styles.activeFilterButton,
-                  ]}
-                  onPress={() => setDateFilter(filter)}>
-                  <Text
-                    style={[
-                      styles.filterText,
-                      dateFilter === filter && styles.activeFilterText,
-                    ]}>
-                    {filter}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={styles.dateText}>Today, {formatDate(new Date())}</Text>
-            <Text style={styles.totalAmount}>{formatAmount(totalAmount)}</Text>
-
+        <View style={styles.tabWrapper}>
+          <View style={styles.tabContainer}>
             <TouchableOpacity
-              style={styles.addButton}
-              onPress={() =>
-                navigation.navigate('DeductionForm', {
-                  type: activeTab,
-                })
-              }>
-              <Text style={styles.addButtonText}>+</Text>
+              style={[styles.tab, activeTab === 'INCOME' && styles.activeTab]}
+              onPress={() => setActiveTab('INCOME')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'INCOME' && styles.activeTabText,
+                ]}>
+                INCOME
+              </Text>
             </TouchableOpacity>
-          </ImageBackground>
-
-          {filteredDeductions.length > 0 ? (
-            <View style={styles.deductionsList}>
-              {filteredDeductions.map(item => (
-                <TouchableOpacity key={item.id} style={styles.deductionItem}>
-                  <View style={styles.deductionIconContainer}>
-                    <Image
-                      source={getIconForCategory(item.category)}
-                      style={styles.deductionIcon}
-                    />
-                  </View>
-                  <View style={styles.deductionInfo}>
-                    <Text style={styles.deductionName}>{item.name}</Text>
-                    <Text style={styles.deductionCategory}>
-                      {item.category}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.deductionAmount,
-                      item.type === 'INCOME'
-                        ? styles.incomeText
-                        : styles.expenseText,
-                    ]}>
-                    {item.type === 'INCOME' ? '+' : '-'}
-                    {formatAmount(item.amount)}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => handleDeleteDeduction(item.id)}
-                    style={styles.deleteButton}>
-                    <Image
-                      source={require('../../assets/images/icons/delete.png')}
-                      style={styles.deleteIcon}
-                    />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyText}>There's nothing here yet</Text>
-          )}
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'EXPENSES' && styles.activeTab]}
+              onPress={() => setActiveTab('EXPENSES')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'EXPENSES' && styles.activeTabText,
+                ]}>
+                EXPENSES
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={{height: 30}} />
-      </ScrollView>
-    </View>
+
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.contentWrapper}>
+            <ImageBackground
+              source={require('../../assets/images/header/frame.png')}
+              style={styles.contentContainer}
+              imageStyle={styles.backgroundImage}>
+              <View style={styles.dateFilterContainer}>
+                {['DAY', 'WEEK', 'MONTH', 'YEAR'].map(filter => (
+                  <TouchableOpacity
+                    key={filter}
+                    style={[
+                      styles.filterButton,
+                      dateFilter === filter && styles.activeFilterButton,
+                    ]}
+                    onPress={() => setDateFilter(filter)}>
+                    <Text
+                      style={[
+                        styles.filterText,
+                        dateFilter === filter && styles.activeFilterText,
+                      ]}>
+                      {filter}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.dateText}>
+                Today, {formatDate(new Date())}
+              </Text>
+              <Text style={styles.totalAmount}>
+                {formatAmount(totalAmount)}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() =>
+                  navigation.navigate('DeductionForm', {
+                    type: activeTab,
+                  })
+                }>
+                <Text style={styles.addButtonText}>+</Text>
+              </TouchableOpacity>
+            </ImageBackground>
+
+            {filteredDeductions.length > 0 ? (
+              <View style={styles.deductionsList}>
+                {filteredDeductions.map(item => (
+                  <TouchableOpacity key={item.id} style={styles.deductionItem}>
+                    <View style={styles.deductionIconContainer}>
+                      <Image
+                        source={getIconForCategory(item.category)}
+                        style={styles.deductionIcon}
+                      />
+                    </View>
+                    <View style={styles.deductionInfo}>
+                      <Text style={styles.deductionName}>{item.name}</Text>
+                      <Text style={styles.deductionCategory}>
+                        {item.category}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.deductionAmount,
+                        item.type === 'INCOME'
+                          ? styles.incomeText
+                          : styles.expenseText,
+                      ]}>
+                      {item.type === 'INCOME' ? '+' : '-'}
+                      {formatAmount(item.amount)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => handleDeleteDeduction(item.id)}
+                      style={styles.deleteButton}>
+                      <Image
+                        source={require('../../assets/images/icons/delete.png')}
+                        style={styles.deleteIcon}
+                      />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyText}>There's nothing here yet</Text>
+            )}
+          </View>
+          <View style={{height: 30}} />
+        </ScrollView>
+      </View>
+    </MainLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    // backgroundColor: '#000824',
   },
   header: {
     flexDirection: 'row',

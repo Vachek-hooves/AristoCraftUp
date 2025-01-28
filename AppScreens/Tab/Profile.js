@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
-  Linking
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import MainLayout from '../../components/layout/MainLayout';
 
 const Profile = ({navigation}) => {
   const [userData, setUserData] = useState(null);
@@ -19,7 +20,7 @@ const Profile = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       loadUserData();
-    }, [])
+    }, []),
   );
 
   const loadUserData = async () => {
@@ -45,7 +46,11 @@ const Profile = ({navigation}) => {
     {
       id: 'privacy',
       title: 'Privacy Policy',
-      onPress: () => {Linking.openURL('https://www.termsfeed.com/live/b0a0cae5-2223-423f-a7a4-a5997d1ee6eb')},
+      onPress: () => {
+        Linking.openURL(
+          'https://www.termsfeed.com/live/b0a0cae5-2223-423f-a7a4-a5997d1ee6eb',
+        );
+      },
       // url: 'https://www.termsfeed.com/live/b0a0cae5-2223-423f-a7a4-a5997d1ee6eb'
     },
     // {
@@ -56,72 +61,81 @@ const Profile = ({navigation}) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
-        {userData && (
-          <TouchableOpacity onPress={() => navigation.navigate('EditProfile', { isNewUser: false })}>
-            <Text style={styles.editButton}>Edit</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+    <MainLayout>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profile</Text>
+          {userData && (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('EditProfile', {isNewUser: false})
+              }>
+              <Text style={styles.editButton}>Edit</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <ScrollView style={{flex: 1}}>
-        <ImageBackground
-          source={require('../../assets/images/header/frame.png')}
-          style={styles.profileCard}
-          imageStyle={styles.profileCardBackground}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={
-                userData?.avatar
-                  ? {uri: userData.avatar}
-                  : require('../../assets/images/vector/defaultAvatar.png')
-              }
-              style={styles.avatar}
-            />
-          </View>
-          {userData ? (
-            <>
-              <Text style={styles.userName}>{userData.name}</Text>
-              {/* <Text style={styles.userEmail}>{userData.email || 'email@example.com'}</Text> */}
-              {/* <View style={styles.birthDateContainer}>
+        <ScrollView style={{flex: 1}}>
+          <ImageBackground
+            source={require('../../assets/images/header/frame.png')}
+            style={styles.profileCard}
+            imageStyle={styles.profileCardBackground}>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={
+                  userData?.avatar
+                    ? {uri: userData.avatar}
+                    : require('../../assets/images/vector/defaultAvatar.png')
+                }
+                style={styles.avatar}
+              />
+            </View>
+            {userData ? (
+              <>
+                <Text style={styles.userName}>{userData.name}</Text>
+                {/* <Text style={styles.userEmail}>{userData.email || 'email@example.com'}</Text> */}
+                {/* <View style={styles.birthDateContainer}>
                 <Image
                   source={require('../../assets/images/vector/calendar.png')}
                   style={styles.calendarIcon}
                 />
                 <Text style={styles.birthDate}>{userData.birthDate || 'DD.MM.YYYY'}</Text>
               </View> */}
-            </>
-          ) : (
-            <TouchableOpacity 
-              style={styles.createProfileButton}
-              onPress={() => navigation.navigate('EditProfile', { isNewUser: true })}>
-              <Text style={styles.createProfileButtonText}>Create Profile</Text>
-            </TouchableOpacity>
-          )}
-        </ImageBackground>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={styles.createProfileButton}
+                onPress={() =>
+                  navigation.navigate('EditProfile', {isNewUser: true})
+                }>
+                <Text style={styles.createProfileButtonText}>
+                  Create Profile
+                </Text>
+              </TouchableOpacity>
+            )}
+          </ImageBackground>
 
-        <View style={styles.menuContainer}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.menuItem}
-              onPress={item.onPress}>
-              <Text style={styles.menuItemText}>{item.title}</Text>
-              <Text style={styles.chevron}>›</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.menuContainer}>
+            {menuItems.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                onPress={item.onPress}>
+                <Text style={styles.menuItemText}>{item.title}</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </MainLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    // backgroundColor: '#000824',
   },
   headerTitle: {
     fontSize: 20,

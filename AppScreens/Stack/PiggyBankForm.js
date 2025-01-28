@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import {useAppContext} from '../../store/context';
+import MainLayout from '../../components/layout/MainLayout';
 
 const PiggyBankForm = ({navigation}) => {
   const {savePiggyBank} = useAppContext();
@@ -24,7 +25,7 @@ const PiggyBankForm = ({navigation}) => {
   });
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const handleAmountChange = (text) => {
+  const handleAmountChange = text => {
     // Allow only numbers and decimal point
     const regex = /^\d*\.?\d*$/;
     if (text === '' || regex.test(text)) {
@@ -48,20 +49,20 @@ const PiggyBankForm = ({navigation}) => {
     if (!formData.goalName.trim()) {
       return false;
     }
-    
+
     const amount = parseFloat(formData.targetAmount);
     if (isNaN(amount) || amount <= 0) {
       return false;
     }
-    
+
     if (!formData.targetDate) {
       return false;
     }
-    
+
     if (!formData.description.trim()) {
       return false;
     }
-    
+
     return true;
   };
 
@@ -120,108 +121,112 @@ const PiggyBankForm = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Piggy bank</Text>
-        <View style={{width: 40}} />
-      </View>
-
-      <ScrollView style={styles.content}>
-        <Image
-          source={require('../../assets/images/vector/piggybank.png')}
-          style={styles.piggyImage}
-          resizeMode="contain"
-        />
-
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Goal Name"
-            placeholderTextColor="#6B7280"
-            value={formData.goalName}
-            onChangeText={text => setFormData({...formData, goalName: text})}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Target Amount"
-            placeholderTextColor="#6B7280"
-            keyboardType="decimal-pad"
-            value={formData.targetAmount}
-            onChangeText={handleAmountChange}
-            maxLength={10}
-          />
-
-          <TouchableOpacity
-            style={styles.dateInput}
-            onPress={() => setShowCalendar(true)}>
-            <Text
-              style={[
-                styles.dateText,
-                formData.targetDate && styles.activeText,
-              ]}>
-              {formatDate(formData.targetDate)}
-            </Text>
+    <MainLayout>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text style={styles.backButton}>Back</Text>
           </TouchableOpacity>
-
-          <TextInput
-            style={[styles.input, styles.descriptionInput]}
-            placeholder="Description"
-            placeholderTextColor="#6B7280"
-            multiline
-            value={formData.description}
-            onChangeText={text => setFormData({...formData, description: text})}
-          />
+          <Text style={styles.title}>Piggy bank</Text>
+          <View style={{width: 40}} />
         </View>
 
-        {isFormValid() && (
-          <TouchableOpacity style={styles.doneButton} onPress={handleSave}>
-            <Text style={styles.doneButtonText}>Done</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
+        <ScrollView style={styles.content}>
+          <Image
+            source={require('../../assets/images/vector/piggybank.png')}
+            style={styles.piggyImage}
+            resizeMode="contain"
+          />
 
-      <Modal visible={showCalendar} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.calendarContainer}>
-            <CalendarPicker
-              onDateChange={handleDateSelect}
-              minDate={new Date()}
-              selectedDayColor="#2196F3"
-              selectedDayTextColor="#FFFFFF"
-              textStyle={{color: '#FFFFFF'}}
-              todayBackgroundColor="green"
-              todayTextStyle={{color: 'yellow'}}
-              monthTitleStyle={{
-                color: '#FFFFFF',
-                fontSize: 16,
-                fontWeight: '600',
-              }}
-              yearTitleStyle={{
-                color: '#FFFFFF',
-                fontSize: 16,
-                fontWeight: '600',
-              }}
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Goal Name"
+              placeholderTextColor="#6B7280"
+              value={formData.goalName}
+              onChangeText={text => setFormData({...formData, goalName: text})}
             />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Target Amount"
+              placeholderTextColor="#6B7280"
+              keyboardType="decimal-pad"
+              value={formData.targetAmount}
+              onChangeText={handleAmountChange}
+              maxLength={10}
+            />
+
             <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowCalendar(false)}>
-              <Text style={styles.closeButtonText}>Close</Text>
+              style={styles.dateInput}
+              onPress={() => setShowCalendar(true)}>
+              <Text
+                style={[
+                  styles.dateText,
+                  formData.targetDate && styles.activeText,
+                ]}>
+                {formatDate(formData.targetDate)}
+              </Text>
             </TouchableOpacity>
+
+            <TextInput
+              style={[styles.input, styles.descriptionInput]}
+              placeholder="Description"
+              placeholderTextColor="#6B7280"
+              multiline
+              value={formData.description}
+              onChangeText={text =>
+                setFormData({...formData, description: text})
+              }
+            />
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+
+          {isFormValid() && (
+            <TouchableOpacity style={styles.doneButton} onPress={handleSave}>
+              <Text style={styles.doneButtonText}>Done</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+
+        <Modal visible={showCalendar} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.calendarContainer}>
+              <CalendarPicker
+                onDateChange={handleDateSelect}
+                minDate={new Date()}
+                selectedDayColor="#2196F3"
+                selectedDayTextColor="#FFFFFF"
+                textStyle={{color: '#FFFFFF'}}
+                todayBackgroundColor="green"
+                todayTextStyle={{color: 'yellow'}}
+                monthTitleStyle={{
+                  color: '#FFFFFF',
+                  fontSize: 16,
+                  fontWeight: '600',
+                }}
+                yearTitleStyle={{
+                  color: '#FFFFFF',
+                  fontSize: 16,
+                  fontWeight: '600',
+                }}
+              />
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowCalendar(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </MainLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000824',
+    // backgroundColor: '#000824',
   },
   header: {
     flexDirection: 'row',
