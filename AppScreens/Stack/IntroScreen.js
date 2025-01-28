@@ -11,7 +11,8 @@ const IntroScreen = ({navigation}) => {
   return (
     <ImageBackground
       style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-      source={require('../../assets/images/flashScreen/SplachScreen.png')}>
+      // source={require('../../assets/images/flashScreen/SplachScreen.png')}>
+      source={require('../../assets/images/bg/bg.png')}>
       <Text style={styles.title}>Aristo Craft Up</Text>
     </ImageBackground>
   );
